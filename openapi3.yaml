@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: osm-change-generator-server
   description: A restful API for generating osm-change based on the diff between geojson and osm entity
-  version: 0.1.0
+  version: 1.0.0
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -125,6 +125,25 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/OsmNode'
+    OsmApiWay:
+      allOf:
+        - $ref: '#/components/schemas/BaseOsmElement'
+        - type: object
+          required:
+            - nodes
+          properties:
+            type:
+              type: string
+              enum:
+                - way
+            nodes:
+              type: array
+              items:
+                type: number
+    OsmApiWayRequest:
+      oneOf:
+        - $ref: '#/components/schemas/OsmNode'
+        - $ref: '#/components/schemas/OsmApiWay'
     OsmElement:
       oneOf:
         - $ref: '#/components/schemas/OsmNode'
@@ -207,6 +226,7 @@ components:
                 coordinates:
                   type: array
                   minItems: 2
+                  maxItems: 2
                   items:
                     type: number
     GeojsonLineString:
@@ -266,4 +286,4 @@ components:
             - $ref: '#/components/schemas/GeojsonLineString'
             - $ref: '#/components/schemas/GeojsonPolygon'
         osmEntity:
-          $ref: '#/components/schemas/OsmWay'
+          $ref: '#/components/schemas/OsmApiWayRequest'
