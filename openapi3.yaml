@@ -29,7 +29,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OsmChange'
+                $ref: '#/components/schemas/GeneratedOsmChangeResponse'
         400:
           $ref: '#/components/responses/BadRequest'
         422:
@@ -173,6 +173,21 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OsmElement'
+    GeneratedOsmChangeResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseSchema'
+        - type: object
+          required:
+            - change
+          properties:
+            change:
+              $ref: '#/components/schemas/OsmChange'
+            tempOsmId:
+              type: integer
+              format: int64
+              minimum: 0
+              example: 666
+              exclusiveMinimum: true
     BaseGeojson:
       type: object
       required:
@@ -271,19 +286,40 @@ components:
                       minItems: 2
                       items:
                         type: number
+    BaseSchema:
+      type: object
+      properties:
+        externalId:
+          type: string
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          minLength: 1
+          maxLength: 68
+        action:
+          type: string
+          enum:
+            - Create
+            - Modify
+            - Delete
+      required:
+        - externalId
+        - action
     NodeChangeRequestBody:
-      type: object
-      properties:
-        geojson:
-          $ref: '#/components/schemas/GeojsonPoint'
-        osmEntity:
-          $ref: '#/components/schemas/OsmNode'
+      allOf:
+        - $ref: '#/components/schemas/BaseSchema'
+        - type: object
+          properties:
+            geojson:
+              $ref: '#/components/schemas/GeojsonPoint'
+            osmEntity:
+              $ref: '#/components/schemas/OsmNode'
     WayChangeRequestBody:
-      type: object
-      properties:
-        geojson:
-          oneOf:
-            - $ref: '#/components/schemas/GeojsonLineString'
-            - $ref: '#/components/schemas/GeojsonPolygon'
-        osmEntity:
-          $ref: '#/components/schemas/OsmApiWayRequest'
+      allOf:
+        - $ref: '#/components/schemas/BaseSchema'
+        - type: object
+          properties:
+            geojson:
+              oneOf:
+                - $ref: '#/components/schemas/GeojsonLineString'
+                - $ref: '#/components/schemas/GeojsonPolygon'
+            osmEntity:
+              $ref: '#/components/schemas/OsmApiWayRequest'
