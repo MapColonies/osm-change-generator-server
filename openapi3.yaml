@@ -145,9 +145,11 @@ components:
         - $ref: '#/components/schemas/OsmNode'
         - $ref: '#/components/schemas/OsmWay'
     OsmApiElements:
-      oneOf:
-        - $ref: '#/components/schemas/OsmNode'
-        - $ref: '#/components/schemas/OsmApiWay'
+      type: array
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/OsmNode'
+          - $ref: '#/components/schemas/OsmApiWay'
     OsmChange:
       type: object
       required:
@@ -282,9 +284,9 @@ components:
         action:
           type: string
           enum:
-            - Create
-            - Modify
-            - Delete
+            - create
+            - modify
+            - delete
       required:
         - externalId
         - action
