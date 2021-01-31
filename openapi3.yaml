@@ -140,14 +140,16 @@ components:
               type: array
               items:
                 type: number
-    OsmApiWayRequest:
-      oneOf:
-        - $ref: '#/components/schemas/OsmNode'
-        - $ref: '#/components/schemas/OsmApiWay'
     OsmElement:
       oneOf:
         - $ref: '#/components/schemas/OsmNode'
         - $ref: '#/components/schemas/OsmWay'
+    OsmApiElements:
+      type: array
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/OsmNode'
+          - $ref: '#/components/schemas/OsmApiWay'
     OsmChange:
       type: object
       required:
@@ -173,21 +175,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OsmElement'
-    GeneratedOsmChangeResponse:
-      allOf:
-        - $ref: '#/components/schemas/BaseSchema'
-        - type: object
-          required:
-            - change
-          properties:
-            change:
-              $ref: '#/components/schemas/OsmChange'
-            tempOsmId:
-              type: integer
-              format: int64
-              minimum: 0
-              example: 666
-              exclusiveMinimum: true
     BaseGeojson:
       type: object
       required:
@@ -297,9 +284,9 @@ components:
         action:
           type: string
           enum:
-            - Create
-            - Modify
-            - Delete
+            - create
+            - modify
+            - delete
       required:
         - externalId
         - action
@@ -310,8 +297,8 @@ components:
           properties:
             geojson:
               $ref: '#/components/schemas/GeojsonPoint'
-            osmEntity:
-              $ref: '#/components/schemas/OsmNode'
+            osmElements:
+              $ref: '#/components/schemas/OsmApiElements'
     WayChangeRequestBody:
       allOf:
         - $ref: '#/components/schemas/BaseSchema'
@@ -321,5 +308,20 @@ components:
               oneOf:
                 - $ref: '#/components/schemas/GeojsonLineString'
                 - $ref: '#/components/schemas/GeojsonPolygon'
-            osmEntity:
-              $ref: '#/components/schemas/OsmApiWayRequest'
+            osmElements:
+              $ref: '#/components/schemas/OsmApiElements'
+    GeneratedOsmChangeResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseSchema'
+        - type: object
+          required:
+            - change
+          properties:
+            change:
+              $ref: '#/components/schemas/OsmChange'
+            tempOsmId:
+              type: integer
+              format: int64
+              maximum: 0
+              example: -666
+              exclusiveMaximum: true
