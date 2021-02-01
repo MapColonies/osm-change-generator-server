@@ -12,14 +12,14 @@ import { GeneratedOsmChangeInvalidError, ParseOsmElementsError } from '../models
 import { FlattenedGeoJSON } from '../models/geojsonTypes';
 import { OsmApiElements } from '../models/helpers';
 
-interface ChangeRequestBody {
+type CreateResourceHandler = RequestHandler<undefined, ChangeModel, ChangeRequestBody>;
+
+export interface ChangeRequestBody {
   action: Actions;
   externalId: string;
   osmElements: OsmApiElements;
   geojson: FlattenedGeoJSON;
 }
-
-type CreateResourceHandler = RequestHandler<undefined, ChangeModel, ChangeRequestBody>;
 
 @injectable()
 export class ChangeController {

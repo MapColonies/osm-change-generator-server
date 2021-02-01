@@ -1,6 +1,5 @@
 import { Feature, LineString, Point, Polygon } from 'geojson';
 
-
 type Tags = Record<string, string> | undefined;
 
 export type FeatureType = 'Point' | 'LineString' | 'Polygon';

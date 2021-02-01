@@ -3,8 +3,8 @@ import { OsmApiElements } from '../../../../src/change/models/helpers';
 
 const TOP_RANDOM_ID = 1000;
 const TOP_NUM_OF_NODES_IN_WAY = 10;
-const MIN_COORDINATE = -180
-const MAX_COORDINATE = 180
+const MIN_COORDINATE = -180;
+const MAX_COORDINATE = 180;
 
 const getRandom = (top: number): number => {
   return Math.floor(Math.random() * ++top);
@@ -21,13 +21,13 @@ const generateNodesOfApiWay = (apiWay: OsmApiWay): OsmNode[] => {
   });
 };
 
-export const getRandomId = (top=TOP_RANDOM_ID): number => {
+export const getRandomId = (top = TOP_RANDOM_ID): number => {
   return getRandom(top);
-}
+};
 
-export const getRandomCoordinate = (min=MIN_COORDINATE, max=MAX_COORDINATE):number => {
+export const getRandomCoordinate = (min = MIN_COORDINATE, max = MAX_COORDINATE): number => {
   return Math.random() * (max - min) + min;
-}
+};
 
 export const generateEmptyChange = (): Required<OsmChange> => ({
   type: 'osmchange',
@@ -71,15 +71,15 @@ export const generateOsmApiElements = (): OsmApiElements => {
   return [apiWay, ...nodes];
 };
 
-export const getRamdomArrayOfCoordinates = (numOfCoordinates=TOP_NUM_OF_NODES_IN_WAY): number[][] => {
-  const result: number[][] = []
-  for (let i=0; i < numOfCoordinates; i++) {
+export const getRamdomArrayOfCoordinates = (numOfCoordinates = TOP_NUM_OF_NODES_IN_WAY): number[][] => {
+  const result: number[][] = [];
+  for (let i = 0; i < numOfCoordinates; i++) {
     const lat = getRandomCoordinate();
     const lon = getRandomCoordinate();
-    result.push([lat, lon])
+    result.push([lat, lon]);
   }
-  return result
-}
+  return result;
+};
 
 export interface ICustomSpies {
   getChange: jest.SpyInstance;

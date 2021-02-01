@@ -1,7 +1,13 @@
 import { OsmChange, OsmWay } from '@map-colonies/node-osm-elements';
 import { getChangeFromLine } from '@map-colonies/osm-change-generator';
 import { Actions } from '@map-colonies/osm-change-generator/dist/models';
-import { FeatureType, FlattenedGeoJSON, FlattenedGeoJSONLine, FlattenedGeoJSONPoint, FlattenedGeoJSONPolygon } from '../../../../src/change/models/geojsonTypes';
+import {
+  FeatureType,
+  FlattenedGeoJSON,
+  FlattenedGeoJSONLine,
+  FlattenedGeoJSONPoint,
+  FlattenedGeoJSONPolygon,
+} from '../../../../src/change/models/geojsonTypes';
 import { generateOsmApiElements, generateWay, getRamdomArrayOfCoordinates } from './helpers';
 import { getRandomCoordinate } from './helpers';
 
@@ -57,6 +63,6 @@ const featureTypeToInstanceMap = new Map<FeatureType, FlattenedGeoJSON>([
   ['Point', point],
   ['LineString', line],
   ['Polygon', polygon],
-])
+]);
 
 export { templateChangeRequest, allActions, featureTypeToInstanceMap, allFeatureTypes, actionToChangeMap };
