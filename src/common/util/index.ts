@@ -1,3 +1,6 @@
-export const validateArrayIsNotEmpty = <T>(array: T[] | undefined): boolean => {
-  return array?.length !== 0;
+export const validateArrayHasElements = <T>(array: T[] | undefined): boolean => {
+  if (array === undefined) {
+    return false;
+  }
+  return array.length > 0;
 };
