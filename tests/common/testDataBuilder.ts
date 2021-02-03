@@ -1,11 +1,11 @@
 import { OsmChange, OsmElementType } from '@map-colonies/node-osm-elements';
 import { Actions } from '@map-colonies/osm-change-generator/dist/models';
 
-import { ChangeRequestBody } from '../../../../src/change/controllers/changeController';
-import { FeatureType } from '../../../../src/change/models/geojsonTypes';
-import { externalId } from '../../../common/constants';
-import { getFeatureMap, osmElementsMap } from '../samples/sampleData';
-import { OSM_CHANGE_SAMPLES } from '../samples/sampleOsmChanges';
+import { ChangeRequestBody } from '../../src/change/controllers/changeController';
+import { FeatureType } from '../../src/change/models/geojsonTypes';
+import { getFeatureMap, osmElementsMap } from './samples/sampleData';
+import { OSM_CHANGE_SAMPLES } from './samples/sampleOsmChanges';
+import { externalId } from './constants';
 
 interface TestData {
   request: ChangeRequestBody;

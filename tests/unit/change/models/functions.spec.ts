@@ -9,12 +9,12 @@ import {
   throwParseOsmElementsError,
   getOsmWayFromElements,
   generateOsmChange,
-} from '../../../../src/change/models/functions';
+} from '../../../../src/change/models/changeManager';
 import { OsmApiElements } from '../../../../src/change/models/helpers';
 import { FeatureType, FlattenedGeoJSON } from '../../../../src/change/models/geojsonTypes';
-import * as functions from '../../../../src/change/models/functions';
+import * as functions from '../../../../src/change/models/changeManager';
 import { allActions, allFeatureTypes, featureTypeToInstanceMap } from '../../../common/constants';
-import { generateApiWay, generateNode, generateOsmApiElements, generateWay } from './helpers';
+import { generateApiWay, generateNode, generateOsmApiElements, generateWay } from '../../../common/helpers';
 
 interface ICustomSpies {
   getChange: jest.SpyInstance;

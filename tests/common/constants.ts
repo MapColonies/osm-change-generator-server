@@ -3,7 +3,7 @@ import { getChangeFromLine } from '@map-colonies/osm-change-generator';
 import { Actions } from '@map-colonies/osm-change-generator/dist/models';
 
 import { FeatureType, FlattenedGeoJSON } from '../../src/change/models/geojsonTypes';
-import { generateOsmApiElements, generateWay, getLine, getPoint, getPolygon } from '../unit/change/models/helpers';
+import { generateOsmApiElements, generateWay, getLine, getPoint, getPolygon } from './helpers';
 
 const externalId = 'some_external_id';
 

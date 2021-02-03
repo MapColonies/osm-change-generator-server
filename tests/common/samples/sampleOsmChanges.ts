@@ -1,7 +1,7 @@
 import { OsmChange, OsmNode, OsmWay } from '@map-colonies/node-osm-elements';
 import { Actions } from '@map-colonies/osm-change-generator/dist/models';
 
-import { FeatureType } from '../../../../src/change/models/geojsonTypes';
+import { FeatureType } from '../../../src/change/models/geojsonTypes';
 
 interface GeneratedOsmChange {
   action: Actions;

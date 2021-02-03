@@ -1,7 +1,7 @@
 import { OsmApiWay, OsmChange, OsmNode, OsmWay } from '@map-colonies/node-osm-elements';
 
-import { FlattenedGeoJSONLine, FlattenedGeoJSONPoint, FlattenedGeoJSONPolygon } from '../../../../src/change/models/geojsonTypes';
-import { OsmApiElements } from '../../../../src/change/models/helpers';
+import { FlattenedGeoJSONLine, FlattenedGeoJSONPoint, FlattenedGeoJSONPolygon } from '../../src/change/models/geojsonTypes';
+import { OsmApiElements } from '../../src/change/models/helpers';
 
 const TOP_RANDOM_ID = 1000;
 const TOP_NUM_OF_NODES_IN_WAY = 10;

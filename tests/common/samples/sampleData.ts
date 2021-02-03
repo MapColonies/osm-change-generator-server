@@ -6,8 +6,8 @@ import {
   FlattenedGeoJSONLine,
   FlattenedGeoJSONPoint,
   FlattenedGeoJSONPolygon,
-} from '../../../../src/change/models/geojsonTypes';
-import { OsmApiElements } from '../../../../src/change/models/helpers';
+} from '../../../src/change/models/geojsonTypes';
+import { OsmApiElements } from '../../../src/change/models/helpers';
 
 const getPoint = (): FlattenedGeoJSONPoint => {
   return { geometry: { type: 'Point', coordinates: [18, 17] }, type: 'Feature', properties: { dog: 'meow' } };

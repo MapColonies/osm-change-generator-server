@@ -2,7 +2,7 @@
 /* eslint-disable jest/no-conditional-expect */ //needed for testing all action cases in one place
 import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
-import { OsmChange, OsmElementType } from '@map-colonies/node-osm-elements';
+import { OsmElementType } from '@map-colonies/node-osm-elements';
 import { Actions } from '@map-colonies/osm-change-generator/dist/models';
 
 import { ChangeRequestBody } from '../../../src/change/controllers/changeController';
@@ -11,8 +11,8 @@ import { allActions, allFeatureTypes } from '../../common/constants';
 import { FeatureType } from '../../../src/change/models/geojsonTypes';
 import { isWay } from '../../../src/change/models/helpers';
 import { ChangeModel } from '../../../src/change/models/change';
+import { TestDataBuilder } from '../../common/testDataBuilder';
 import * as requestSender from './helpers/requestSender';
-import { TestDataBuilder } from './helpers/changeRequestBuilder';
 
 let testDataBuilder: TestDataBuilder;
 
