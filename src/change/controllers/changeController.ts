@@ -2,13 +2,12 @@ import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { HttpError } from 'express-openapi-validator/dist/framework/types';
-
 import { Actions } from '@map-colonies/osm-change-generator/dist/models';
+
 import { Services } from '../../common/constants';
 import { ILogger } from '../../common/interfaces';
 import { ChangeManager } from '../models/changeManager';
 import { ChangeModel } from '../models/change';
-import { GeneratedOsmChangeInvalidError, ParseOsmElementsError } from '../models/errors';
 import { FlattenedGeoJSON } from '../models/geojsonTypes';
 import { OsmApiElements } from '../models/helpers';
 
@@ -28,14 +27,9 @@ export class ChangeController {
     const { action, geojson, osmElements, externalId } = req.body;
     let change: ChangeModel;
     try {
-      change = this.manager.handle(action, geojson, osmElements, externalId);
+      change = this.manager.generateChange(action, geojson, osmElements, externalId);
     } catch (error) {
-      if (error instanceof ParseOsmElementsError) {
-        (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
-      }
-      if (error instanceof GeneratedOsmChangeInvalidError) {
-        (error as HttpError).status = httpStatus.INTERNAL_SERVER_ERROR;
-      }
+      (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
       return next(error);
     }
     return res.status(httpStatus.CREATED).json(change);

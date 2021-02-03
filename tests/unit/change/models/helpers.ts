@@ -1,4 +1,6 @@
 import { OsmApiWay, OsmChange, OsmNode, OsmWay } from '@map-colonies/node-osm-elements';
+
+import { FlattenedGeoJSONLine, FlattenedGeoJSONPoint, FlattenedGeoJSONPolygon } from '../../../../src/change/models/geojsonTypes';
 import { OsmApiElements } from '../../../../src/change/models/helpers';
 
 const TOP_RANDOM_ID = 1000;
@@ -81,7 +83,28 @@ export const getRamdomArrayOfCoordinates = (numOfCoordinates = TOP_NUM_OF_NODES_
   return result;
 };
 
-export interface ICustomSpies {
-  getChange: jest.SpyInstance;
-  getElement: jest.SpyInstance;
-}
+export const getPoint = (): FlattenedGeoJSONPoint => {
+  return { geometry: { type: 'Point', coordinates: [getRandomCoordinate(), getRandomCoordinate()] }, type: 'Feature', properties: { dog: 'meow' } };
+};
+
+export const getLine = (): FlattenedGeoJSONLine => {
+  return {
+    type: 'Feature',
+    properties: { dog: 'meow' },
+    geometry: {
+      type: 'LineString',
+      coordinates: getRamdomArrayOfCoordinates(),
+    },
+  };
+};
+
+export const getPolygon = (): FlattenedGeoJSONPolygon => {
+  return {
+    type: 'Feature',
+    properties: { dog: 'meow' },
+    geometry: {
+      type: 'Polygon',
+      coordinates: [getRamdomArrayOfCoordinates()],
+    },
+  };
+};

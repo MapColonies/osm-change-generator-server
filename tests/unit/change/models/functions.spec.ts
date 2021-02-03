@@ -1,23 +1,27 @@
-import { BaseElement, OsmChange, OsmElementType, parseOsmWayApi } from '@map-colonies/node-osm-elements';
+import { BaseElement, OsmElementType, parseOsmWayApi } from '@map-colonies/node-osm-elements';
 import { Actions } from '@map-colonies/osm-change-generator/dist/models';
 import * as osmChangeGenerator from '@map-colonies/osm-change-generator';
+
 import { ParseOsmElementsError } from '../../../../src/change/models/errors';
 import {
   getNodeFromElements,
   getTempOsmId,
   throwParseOsmElementsError,
-  isOsmChangeValid,
   getOsmWayFromElements,
-  generateChange,
+  generateOsmChange,
 } from '../../../../src/change/models/functions';
 import { OsmApiElements } from '../../../../src/change/models/helpers';
 import { FeatureType, FlattenedGeoJSON } from '../../../../src/change/models/geojsonTypes';
-import * as util from '../../../../src/common/util';
 import * as functions from '../../../../src/change/models/functions';
-import { generateEmptyChange, generateApiWay, generateNode, generateOsmApiElements, generateWay, ICustomSpies } from './helpers';
-import { allActions, allFeatureTypes, featureTypeToInstanceMap } from './constants';
+import { allActions, allFeatureTypes, featureTypeToInstanceMap } from '../../../common/constants';
+import { generateApiWay, generateNode, generateOsmApiElements, generateWay } from './helpers';
 
-let map: Map<FeatureType, ICustomSpies>;
+interface ICustomSpies {
+  getChange: jest.SpyInstance;
+  getElement: jest.SpyInstance;
+}
+
+let featureToMocksMap: Map<FeatureType, ICustomSpies>;
 
 afterEach(() => {
   jest.restoreAllMocks();
@@ -46,29 +50,6 @@ describe('functions', function () {
         const expectedMessage = `Could not parse osm-api-elements, expected ${elementType as string} element`;
         expect(() => throwParseOsmElementsError(elementType)).toThrow(ParseOsmElementsError);
         expect(() => throwParseOsmElementsError(elementType)).toThrow(expectedMessage);
-      });
-    });
-  });
-
-  describe('#isOsmChangeValid', function () {
-    it('should return the result of validateArrayHasElements', function () {
-      jest.mock('../../../../src/common/util', () => ({
-        validateArrayHasElements: jest.fn(),
-      }));
-      let mockValidateArrayHasElements: jest.SpyInstance;
-      let calls = 0;
-
-      const callIsOsmChangeValid = (action: Actions, osmChange: OsmChange, result: boolean): void => {
-        expect(isOsmChangeValid(action, osmChange)).toEqual(result);
-        expect(mockValidateArrayHasElements).toHaveBeenCalledTimes(++calls);
-      };
-
-      const osmChange = generateEmptyChange();
-      const results: Readonly<boolean[]> = [true, false] as const;
-
-      results.forEach((result) => {
-        mockValidateArrayHasElements = jest.spyOn(util, 'validateArrayHasElements').mockReturnValue(result);
-        allActions.forEach((action) => callIsOsmChangeValid(action, osmChange, result));
       });
     });
   });
@@ -120,7 +101,7 @@ describe('functions', function () {
       const mockGetNode = jest.spyOn(functions, 'getNodeFromElements');
       const mockGetWay = jest.spyOn(functions, 'getOsmWayFromElements');
 
-      map = new Map<FeatureType, ICustomSpies>([
+      featureToMocksMap = new Map<FeatureType, ICustomSpies>([
         ['Point', { getChange: getChangeFromPointSpy, getElement: mockGetNode }],
         ['LineString', { getChange: getChangeFromLineSpy, getElement: mockGetWay }],
         ['Polygon', { getChange: getChangeFromPolygonSpy, getElement: mockGetWay }],
@@ -128,7 +109,7 @@ describe('functions', function () {
     });
     test.each(allFeatureTypes.map((type) => [type]))('should call the correct get-changemethod by action and feature type', (type: FeatureType) => {
       const feature = featureTypeToInstanceMap.get(type) as FlattenedGeoJSON;
-      const mocks = map.get(type) as ICustomSpies;
+      const mocks = featureToMocksMap.get(type) as ICustomSpies;
       const getChangeSpy = mocks.getChange;
       const mockGetElementFromElements = mocks.getElement;
 
@@ -141,7 +122,7 @@ describe('functions', function () {
       mockGetElementFromElements.mockReturnValue(oldElement);
 
       allActions.forEach((action) => {
-        generateChange(action, feature, generateOsmApiElements());
+        generateOsmChange(action, feature, generateOsmApiElements());
         switch (action) {
           case Actions.CREATE: {
             expect(mockGetElementFromElements).not.toHaveBeenCalled();

@@ -8,7 +8,7 @@ import { FlattenedGeoJSON, FlattenedGeoJSONPoint, FlattenedGeoJSONLine, Flattene
 import { ParseOsmElementsError } from './errors';
 import { isNode, isWay, OsmApiElements } from './helpers';
 
-export const generateChange = (action: Actions, feature: FlattenedGeoJSON, osmElements: OsmApiElements): OsmChange => {
+export const generateOsmChange = (action: Actions, feature: FlattenedGeoJSON, osmElements: OsmApiElements): OsmChange => {
   switch (feature.geometry.type) {
     case 'Point': {
       feature = feature as FlattenedGeoJSONPoint;
@@ -95,14 +95,4 @@ export const getTempOsmId = (elements: BaseElement[]): number => {
 
 export const throwParseOsmElementsError = (elementType: OsmElementType): never => {
   throw new ParseOsmElementsError(`Could not parse osm-api-elements, expected ${elementType as string} element`);
-};
-
-export const isOsmChangeValid = (action: Actions, osmChange: OsmChange): boolean => {
-  if (action === Actions.CREATE) {
-    return validateArrayHasElements(osmChange.create);
-  }
-  if (action === Actions.MODIFY) {
-    return validateArrayHasElements(osmChange.modify);
-  }
-  return validateArrayHasElements(osmChange.delete);
 };
