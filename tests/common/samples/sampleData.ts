@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */ // used only for sample data
-import { OsmNode, OsmElementType } from '@map-colonies/node-osm-elements';
+import { OsmNode, OsmElementType, BaseElement, OsmWay } from '@map-colonies/node-osm-elements';
 import {
   FeatureType,
   FlattenedGeoJSON,
@@ -47,7 +47,7 @@ const getPolygon = (): FlattenedGeoJSONPolygon => {
   };
 };
 
-const osmApiElements: OsmApiElements = [
+const sampleOsmApiElements: OsmApiElements = [
   {
     id: 2,
     lat: 16,
@@ -80,16 +80,53 @@ const osmApiElements: OsmApiElements = [
   },
 ];
 
-const node: OsmNode = {
+const sampleNode: OsmNode = {
   type: 'node',
   id: 1,
   lat: 18,
   lon: 17,
 };
 
-const osmElementsMap = new Map<OsmElementType, OsmApiElements>([
-  ['node', [node]],
-  ['way', osmApiElements],
+const sampleOsmWay: OsmWay = {
+  type: 'way',
+  id: 1,
+  nodes: [
+    {
+      id: 2,
+      lat: 16,
+      lon: 16,
+      type: 'node',
+      version: 1,
+    },
+    {
+      id: 3,
+      lat: 18,
+      lon: 18,
+      type: 'node',
+      version: 2,
+    },
+    {
+      id: 4,
+      lat: 17,
+      lon: 17,
+      type: 'node',
+      version: 1,
+    },
+  ],
+  tags: {
+    cat: 'meow',
+  },
+  version: 3,
+};
+
+interface OsmApiToElement {
+  apiElements: OsmApiElements;
+  element: BaseElement;
+}
+
+const osmElementsMap = new Map<OsmElementType, OsmApiToElement>([
+  ['node', { apiElements: [sampleNode], element: sampleNode }],
+  ['way', { apiElements: sampleOsmApiElements, element: sampleOsmWay }],
 ]);
 
 const getFeatureMap = (): Map<FeatureType, FlattenedGeoJSON> => {
@@ -100,4 +137,4 @@ const getFeatureMap = (): Map<FeatureType, FlattenedGeoJSON> => {
   ]);
 };
 
-export { osmElementsMap, getFeatureMap };
+export { OsmApiToElement, osmElementsMap, getFeatureMap };

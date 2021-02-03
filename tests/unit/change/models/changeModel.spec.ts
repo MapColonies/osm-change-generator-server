@@ -1,32 +1,27 @@
 import { Actions } from '@map-colonies/osm-change-generator/dist/models';
 import * as osmChangeGenerator from '@map-colonies/osm-change-generator';
-import { BaseElement, OsmElementType } from '@map-colonies/node-osm-elements';
+import { OsmElementType } from '@map-colonies/node-osm-elements';
 
 import * as functions from '../../../../src/change/models/changeManager';
-import { ChangeManager, getNodeFromElements, getOsmWayFromElements } from '../../../../src/change/models/changeManager';
+import { ChangeManager } from '../../../../src/change/models/changeManager';
 import { TestDataBuilder } from '../../../common/testDataBuilder';
 import { FeatureType } from '../../../../src/change/models/geojsonTypes';
 import { allFeatureTypes } from '../../../common/constants';
 import { ParseOsmElementsError } from '../../../../src/change/models/errors';
+import { osmElementsMap, OsmApiToElement } from '../../../common/samples/sampleData';
 
 interface ICustomSpies {
   getChange: jest.SpyInstance;
   getElement: jest.SpyInstance;
 }
-const eachFeatureTypes = allFeatureTypes.map((type) => [type]);
 
-const casesTable: [Actions, FeatureType][] = [
-  [Actions.MODIFY, 'Point'],
-  [Actions.MODIFY, 'LineString'],
-  [Actions.MODIFY, 'Polygon'],
-  [Actions.DELETE, 'Point'],
-  [Actions.DELETE, 'LineString'],
-  [Actions.DELETE, 'Polygon'],
-];
+const getAllFeatureCasesByAction = (action: Actions): [Actions, FeatureType][] => allFeatureTypes.map((featureType) => [action, featureType]);
 
-let featureToSpiesMap: Map<FeatureType, ICustomSpies>;
+const caseTable: [Actions, FeatureType][] = [...getAllFeatureCasesByAction(Actions.MODIFY), ...getAllFeatureCasesByAction(Actions.DELETE)];
+
 let changeManager: ChangeManager;
 let testDataBuilder: TestDataBuilder;
+let featureToSpiesMap: Map<FeatureType, ICustomSpies>;
 
 describe('ChangeManager', () => {
   beforeAll(function () {
@@ -51,30 +46,32 @@ describe('ChangeManager', () => {
     jest.clearAllMocks();
   });
   describe('#generateChange', () => {
-    test.each(eachFeatureTypes)('should return a create changeModel with tempOsmId', (type: FeatureType) => {
-      const action = Actions.CREATE;
-      const tempOsmIdSpy = jest.spyOn(functions, 'getTempOsmId');
-      const { getChange, getElement } = featureToSpiesMap.get(type) as ICustomSpies;
-      const { request, expectedResult: expectedChangeResult } = testDataBuilder.setAction(action).setGeojson(type).getTestData();
-      const { geojson, osmElements, externalId } = request;
+    test.each(getAllFeatureCasesByAction(Actions.CREATE))(
+      'should return a create changeModel with tempOsmId',
+      (action: Actions, type: FeatureType) => {
+        const tempOsmIdSpy = jest.spyOn(functions, 'getTempOsmId');
+        const { getChange, getElement } = featureToSpiesMap.get(type) as ICustomSpies;
+        const { request, expectedResult: expectedChangeResult } = testDataBuilder.setAction(action).setGeojson(type).getTestData();
+        const { geojson, osmElements, externalId } = request;
 
-      const result = changeManager.generateChange(request.action, geojson, osmElements, externalId);
+        const result = changeManager.generateChange(request.action, geojson, osmElements, externalId);
 
-      // spies
-      expect(getElement).not.toHaveBeenCalled();
-      expect(getChange).toHaveBeenCalledWith({ action: action, feature: geojson });
-      expect(tempOsmIdSpy).toHaveBeenCalled();
+        // spies
+        expect(getElement).not.toHaveBeenCalled();
+        expect(getChange).toHaveBeenCalledWith({ action: action, feature: geojson });
+        expect(tempOsmIdSpy).toHaveBeenCalled();
 
-      // osm change result
-      expect(result.change).toMatchObject(expectedChangeResult);
+        // osm change result
+        expect(result.change).toMatchObject(expectedChangeResult);
 
-      // full generated change result
-      expect(result).toHaveProperty('tempOsmId');
-      expect(result).toHaveProperty('action', request.action);
-      expect(result).toHaveProperty('externalId', externalId);
-    });
+        // full generated change result
+        expect(result).toHaveProperty('tempOsmId', -1);
+        expect(result).toHaveProperty('action', request.action);
+        expect(result).toHaveProperty('externalId', externalId);
+      }
+    );
 
-    test.each(casesTable)('should call the correct get-changemethod by action and feature type', (action: Actions, type: FeatureType) => {
+    test.each(caseTable)('should call the correct get-changemethod by action and feature type', (action: Actions, type: FeatureType) => {
       const tempOsmIdSpy = jest.spyOn(functions, 'getTempOsmId');
       const { getChange, getElement } = featureToSpiesMap.get(type) as ICustomSpies;
       const { request, expectedResult: expectedChangeResult } = testDataBuilder.setAction(action).setGeojson(type).getTestData();
@@ -86,18 +83,14 @@ describe('ChangeManager', () => {
       expect(getElement).toHaveBeenCalledWith(osmElements);
       expect(tempOsmIdSpy).not.toHaveBeenCalled();
 
-      let oldElement: BaseElement;
-      if (type === 'Point') {
-        oldElement = getNodeFromElements(osmElements);
-      } else {
-        oldElement = getOsmWayFromElements(osmElements);
-      }
-
+      const elementType: OsmElementType = type === 'Point' ? 'node' : 'way';
+      const oldElement = (osmElementsMap.get(elementType) as OsmApiToElement).element;
       if (action === Actions.MODIFY) {
         expect(getChange).toHaveBeenCalledWith({ action: action, feature: geojson, oldElement: oldElement });
       } else {
         expect(getChange).toHaveBeenCalledWith({ action: action, oldElement: oldElement });
       }
+
       // osm change result
       expect(result.change).toMatchObject(expectedChangeResult);
 
@@ -107,7 +100,7 @@ describe('ChangeManager', () => {
       expect(result).toHaveProperty('externalId', externalId);
     });
 
-    test.each(casesTable)('should throw ParseOsmElementsError if osmElements is empty on modify and delete', (action: Actions, type: FeatureType) => {
+    test.each(caseTable)('should throw ParseOsmElementsError if osmElements is empty on modify and delete', (action: Actions, type: FeatureType) => {
       const { request } = testDataBuilder.setAction(action).setGeojson(type).getTestData();
       request.osmElements = [];
       const { geojson, osmElements, externalId } = request;

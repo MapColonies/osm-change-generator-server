@@ -3,7 +3,7 @@ import { Actions } from '@map-colonies/osm-change-generator/dist/models';
 
 import { ChangeRequestBody } from '../../src/change/controllers/changeController';
 import { FeatureType } from '../../src/change/models/geojsonTypes';
-import { getFeatureMap, osmElementsMap } from './samples/sampleData';
+import { getFeatureMap, OsmApiToElement, osmElementsMap } from './samples/sampleData';
 import { OSM_CHANGE_SAMPLES } from './samples/sampleOsmChanges';
 import { externalId } from './constants';
 
@@ -41,7 +41,7 @@ export class TestDataBuilder {
   }
 
   public setOsmElements(osmType: OsmElementType): TestDataBuilder {
-    const osmElementsSample = osmElementsMap.get(osmType);
+    const osmElementsSample = (osmElementsMap.get(osmType) as OsmApiToElement).apiElements;
     this.request.osmElements = osmElementsSample;
     return this;
   }
