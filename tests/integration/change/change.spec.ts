@@ -9,7 +9,6 @@ import { ChangeRequestBody } from '../../../src/change/controllers/changeControl
 import { registerTestValues } from '../testContainerConfig';
 import { allActions, allFeatureTypes } from '../../common/constants';
 import { FeatureType } from '../../../src/change/models/geojsonTypes';
-import { isWay } from '../../../src/change/models/helpers';
 import { ChangeModel } from '../../../src/change/models/change';
 import { TestDataBuilder } from '../../common/testDataBuilder';
 import * as requestSender from './helpers/requestSender';
@@ -40,10 +39,38 @@ describe('change', function () {
             if (action === Actions.CREATE) {
               expect(response.body).toHaveProperty('tempOsmId');
             } else {
-              expect(response.body).not.toHaveProperty('tempOsmId');
+              expect(response.body).not.toHaveProperty('tempOsmId', -1);
             }
             expect((response.body as ChangeModel).change).toMatchObject(expectedResult);
           }
+        }
+      });
+      it('should return 201 status code on create action when osmElements is missing on the request', async function () {
+        const action = Actions.CREATE;
+        for await (const feature of allFeatureTypes) {
+          const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson(feature).getTestData();
+          const { osmElements, ...rest } = request;
+          const response = await requestSender.postChange(rest as ChangeRequestBody);
+
+          expect(response.status).toBe(httpStatusCodes.CREATED);
+          expect(response.body).toHaveProperty('action', action);
+          expect(response.body).toHaveProperty('externalId', rest.externalId);
+          expect(response.body).toHaveProperty('tempOsmId', -1);
+          expect((response.body as ChangeModel).change).toMatchObject(expectedResult);
+        }
+      });
+      it('should return 201 status code on create action when osmElements is empty on the request', async function () {
+        const action = Actions.CREATE;
+        for await (const feature of allFeatureTypes) {
+          const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson(feature).getTestData();
+          request.osmElements = [];
+          const response = await requestSender.postChange(request);
+
+          expect(response.status).toBe(httpStatusCodes.CREATED);
+          expect(response.body).toHaveProperty('action', action);
+          expect(response.body).toHaveProperty('externalId', request.externalId);
+          expect(response.body).toHaveProperty('tempOsmId', -1);
+          expect((response.body as ChangeModel).change).toMatchObject(expectedResult);
         }
       });
     });
@@ -89,7 +116,7 @@ describe('change', function () {
       it('should return 422 status code when missing node on point request', async function () {
         for await (const action of [Actions.MODIFY, Actions.DELETE]) {
           const request = testDataBuilder.setAction(action).setGeojson('Point').setOsmElements('way').getResult();
-          request.osmElements = request.osmElements.filter((element) => isWay(element));
+          request.osmElements = request.osmElements.filter((element) => element.type === 'way');
           const response = await requestSender.postChange(request);
           expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
           expect(response.body).toHaveProperty('message', `Could not parse osm-api-elements, expected node element`);
