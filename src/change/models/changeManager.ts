@@ -1,7 +1,7 @@
 /* eslint-disable no-fallthrough */ // the rule is not typescript aware in this case
 import { inject, injectable } from 'tsyringe';
 import { Actions } from '@map-colonies/osm-change-generator/dist/models';
-import { parseOsmWayApi, BaseElement, OsmNode, OsmWay, OsmChange, OsmElementType } from '@map-colonies/node-osm-elements';
+import { parseOsmWayApi, BaseElement, OsmNode, OsmWay, OsmChange, OsmElementType, OsmApiWay } from '@map-colonies/node-osm-elements';
 import { getChangeFromPoint, getChangeFromLine, getChangeFromPolygon } from '@map-colonies/osm-change-generator';
 
 import { Services } from '../../common/constants';
@@ -70,19 +70,19 @@ export const getNodeFromElements = (elements: OsmApiElements): OsmNode => {
   if (!validateArrayHasElements(elements)) {
     throwParseOsmElementsError('node');
   }
-  const node = elements[0];
+  const node: OsmNode | OsmApiWay = elements[0];
   if (!isNode(node)) {
-    throwParseOsmElementsError('node');
+    return throwParseOsmElementsError('node');
   }
-  return node as OsmNode;
+  return node;
 };
 
 export const getOsmWayFromElements = (elements: OsmApiElements): OsmWay => {
-  const osmWay = parseOsmWayApi(elements);
+  const osmWay: OsmWay | undefined = parseOsmWayApi(elements);
   if (osmWay === undefined) {
-    throwParseOsmElementsError('way');
+    return throwParseOsmElementsError('way');
   }
-  return osmWay as OsmWay;
+  return osmWay;
 };
 
 /**
