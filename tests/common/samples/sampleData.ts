@@ -1,12 +1,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */ // used only for sample data
 import { OsmNode, OsmElementType, BaseElement, OsmWay } from '@map-colonies/node-osm-elements';
-import {
-  FeatureType,
-  FlattenedGeoJSON,
-  FlattenedGeoJSONLine,
-  FlattenedGeoJSONPoint,
-  FlattenedGeoJSONPolygon,
-} from '../../../src/change/models/geojsonTypes';
+import { FlattenedGeoJSONLine, FlattenedGeoJSONPoint, FlattenedGeoJSONPolygon } from '@map-colonies/osm-change-generator';
+import { FeatureType, FlattenedGeoJSON } from '../../../src/change/models/geojsonTypes';
 import { OsmApiElements } from '../../../src/change/models/helpers';
 
 const getPoint = (): FlattenedGeoJSONPoint => {

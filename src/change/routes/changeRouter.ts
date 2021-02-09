@@ -11,4 +11,4 @@ const changeRouterFactory: FactoryFunction<Router> = (dependencyContainer) => {
   return router;
 };
 
-export { changeRouterFactory as changeRouterFactory };
+export { changeRouterFactory };

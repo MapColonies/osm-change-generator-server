@@ -1,4 +1,4 @@
-import { Actions } from '@map-colonies/osm-change-generator/dist/models';
+import { Actions } from '@map-colonies/osm-change-generator';
 import { OsmElementType } from '@map-colonies/node-osm-elements';
 
 import { ChangeManager } from '../../../../src/change/models/changeManager';

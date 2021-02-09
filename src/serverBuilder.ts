@@ -6,7 +6,7 @@ import { container, inject, injectable } from 'tsyringe';
 import { RequestLogger } from './common/middlewares/RequestLogger';
 import { Services } from './common/constants';
 import { IConfig, ILogger } from './common/interfaces';
-import { changeRouterFactory as changeRouterFactory } from './change/routes/changeRouter';
+import { changeRouterFactory } from './change/routes/changeRouter';
 import { openapiRouterFactory } from './common/routes/openapi';
 
 @injectable()

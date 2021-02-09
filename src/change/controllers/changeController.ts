@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { HttpError } from 'express-openapi-validator/dist/framework/types';
-import { Actions } from '@map-colonies/osm-change-generator/dist/models';
+import { Actions } from '@map-colonies/osm-change-generator';
 
 import { Services } from '../../common/constants';
 import { ILogger } from '../../common/interfaces';

@@ -3,7 +3,7 @@
 import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
 import { OsmElementType } from '@map-colonies/node-osm-elements';
-import { Actions } from '@map-colonies/osm-change-generator/dist/models';
+import { Actions } from '@map-colonies/osm-change-generator';
 
 import { ChangeRequestBody } from '../../../src/change/controllers/changeController';
 import { registerTestValues } from '../testContainerConfig';

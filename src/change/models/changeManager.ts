@@ -1,15 +1,22 @@
 /* eslint-disable no-fallthrough */ // the rule is not typescript aware in this case
 import { inject, injectable } from 'tsyringe';
-import { Actions } from '@map-colonies/osm-change-generator/dist/models';
+import {
+  Actions,
+  FlattenedGeoJSONPoint,
+  FlattenedGeoJSONLine,
+  FlattenedGeoJSONPolygon,
+  getChangeFromPoint,
+  getChangeFromLine,
+  getChangeFromPolygon,
+} from '@map-colonies/osm-change-generator';
 import { parseOsmWayApi, BaseElement, OsmNode, OsmWay, OsmChange, OsmElementType, OsmApiWay } from '@map-colonies/node-osm-elements';
-import { getChangeFromPoint, getChangeFromLine, getChangeFromPolygon } from '@map-colonies/osm-change-generator';
 
 import { Services } from '../../common/constants';
 import { ILogger } from '../../common/interfaces';
 import { validateArrayHasElements } from '../../common/util';
 import { ChangeModel } from './change';
 import { OsmApiElements } from './helpers';
-import { FlattenedGeoJSON, FlattenedGeoJSONPoint, FlattenedGeoJSONLine, FlattenedGeoJSONPolygon } from './geojsonTypes';
+import { FlattenedGeoJSON } from './geojsonTypes';
 import { ParseOsmElementsError } from './errors';
 import { isNode, isWay } from './helpers';
 
