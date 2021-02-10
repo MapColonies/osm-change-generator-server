@@ -1,4 +1,3 @@
-/* eslint-disable no-fallthrough */ // the rule is not typescript aware in this case
 import { inject, injectable } from 'tsyringe';
 import {
   Actions,
@@ -37,6 +36,7 @@ export const generateOsmChange = (action: Actions, feature: FlattenedGeoJSON, os
           return getChangeFromPoint({ action, oldElement });
         }
       }
+      break;
     }
     case 'LineString': {
       feature = feature as FlattenedGeoJSONLine;
@@ -53,6 +53,7 @@ export const generateOsmChange = (action: Actions, feature: FlattenedGeoJSON, os
           return getChangeFromLine({ action, oldElement });
         }
       }
+      break;
     }
     case 'Polygon': {
       feature = feature as FlattenedGeoJSONPolygon;
