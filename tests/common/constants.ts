@@ -8,4 +8,11 @@ const allActions: Readonly<Actions[]> = [Actions.CREATE, Actions.MODIFY, Actions
 
 const allFeatureTypes: Readonly<FeatureType[]> = ['Point', 'LineString', 'Polygon'] as const;
 
-export { allActions, allFeatureTypes, externalId };
+const getAllFeatureCasesByAction = (action: Actions): [Actions, FeatureType][] => allFeatureTypes.map((featureType) => [action, featureType]);
+
+const allFeaturesOnModifyAndDelete: [Actions, FeatureType][] = [
+  ...getAllFeatureCasesByAction(Actions.MODIFY),
+  ...getAllFeatureCasesByAction(Actions.DELETE),
+];
+
+export { allActions, allFeatureTypes, externalId, allFeaturesOnModifyAndDelete };

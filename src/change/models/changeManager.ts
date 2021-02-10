@@ -76,7 +76,7 @@ export const generateOsmChange = (action: Actions, feature: FlattenedGeoJSON, os
 
 export const getNodeFromElements = (elements: OsmApiElements): OsmNode => {
   if (!validateArrayHasElements(elements)) {
-    throwParseOsmElementsError('node');
+    return throwParseOsmElementsError('node');
   }
   const node: OsmNode | OsmApiWay = elements[0];
   if (!isNode(node)) {
