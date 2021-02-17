@@ -5,10 +5,7 @@ import { container } from 'tsyringe';
 import { get } from 'config';
 import { getApp } from './app';
 import { DEFAULT_SERVER_PORT } from './common/constants';
-
-interface IServerConfig {
-  port: string;
-}
+import { IServerConfig } from './common/interfaces';
 
 const serverConfig = get<IServerConfig>('server');
 const port: number = parseInt(serverConfig.port) || DEFAULT_SERVER_PORT;
