@@ -1,16 +1,33 @@
+/* eslint-disable import/first */
 // this import must be called before the first import of tsyring
 import 'reflect-metadata';
-import { Probe } from '@map-colonies/mc-probe';
+import { Tracing } from '@map-colonies/telemetry';
+import { createTerminus } from '@godaddy/terminus';
+import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
+import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
+import { Logger } from '@map-colonies/js-logger';
 import { container } from 'tsyringe';
 import { get } from 'config';
-import { getApp } from './app';
-import { DEFAULT_SERVER_PORT } from './common/constants';
+import { DEFAULT_SERVER_PORT, IGNORED_INCOMING_TRACE_ROUTES, IGNORED_OUTGOING_TRACE_ROUTES, Services } from './common/constants';
 import { IServerConfig } from './common/interfaces';
+
+const tracing = new Tracing('osm-change-generator', [
+  new HttpInstrumentation({
+    ignoreIncomingPaths: IGNORED_INCOMING_TRACE_ROUTES,
+    ignoreOutgoingUrls: IGNORED_OUTGOING_TRACE_ROUTES,
+  }),
+  new ExpressInstrumentation(),
+]);
+
+import { getApp } from './app';
 
 const serverConfig = get<IServerConfig>('server');
 const port: number = parseInt(serverConfig.port) || DEFAULT_SERVER_PORT;
-const app = getApp();
-const probe = container.resolve<Probe>(Probe);
-void probe.start(app, port).then(() => {
-  probe.readyFlag = true;
+const app = getApp(tracing);
+
+const logger = container.resolve<Logger>(Services.LOGGER);
+createTerminus(app, { healthChecks: { '/liveness': true }, onSignal: container.resolve('onSignal') });
+
+app.listen(port, () => {
+  logger.info(`app started on port ${port}`);
 });

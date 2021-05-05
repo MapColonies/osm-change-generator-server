@@ -1,6 +1,6 @@
 import { Actions } from '@map-colonies/osm-change-generator';
 import { OsmElementType } from '@map-colonies/node-osm-elements';
-
+import jsLogger from '@map-colonies/js-logger';
 import { ChangeManager } from '../../../../src/change/models/changeManager';
 import { TestDataBuilder } from '../../../common/testDataBuilder';
 import { FeatureType } from '../../../../src/change/models/geojsonTypes';
@@ -15,7 +15,7 @@ describe('ChangeManager', () => {
     testDataBuilder = new TestDataBuilder();
   });
   beforeEach(function () {
-    changeManager = new ChangeManager({ log: jest.fn() });
+    changeManager = new ChangeManager(jsLogger({ enabled: false }));
   });
   describe('#generateChange', () => {
     it.each(allFeatureTypes)('should return a create changeModel with tempOsmId for create action and %s feature', (type: FeatureType) => {
