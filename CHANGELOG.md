@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/MapColonies/osm-change-generator-server/compare/v1.0.0...v1.0.1) (2021-05-05)
+
+
+### Bug Fixes
+
+* **configurations:** removed servers list from openapi3.yml ([f5baea3](https://github.com/MapColonies/osm-change-generator-server/commit/f5baea34b8a92f5e98af588fec83f5939b7b4a5c))
+
 ## 1.0.0 (2021-05-03)
 
 
