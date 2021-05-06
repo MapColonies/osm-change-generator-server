@@ -8,11 +8,11 @@ function registerTestValues(): void {
   container.register(Services.CONFIG, { useValue: config });
   container.register(Services.LOGGER, { useValue: jsLogger({ enabled: false }) });
 
-  const tracing = new Tracing('app_tracer');
+  const tracing = new Tracing('osm-change-generator-tracer');
   const tracer = tracing.start();
   container.register(Services.TRACER, { useValue: tracer });
 
-  const metrics = new Metrics('app_meter');
+  const metrics = new Metrics('osm-change-generator-server-meter');
   const meter = metrics.start();
   container.register(Services.METER, { useValue: meter });
 }
