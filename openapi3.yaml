@@ -1,14 +1,15 @@
 openapi: 3.0.1
 info:
   title: osm-change-generator-server
-  description: A restful API for generating osm-change based on the diff between geojson and osm entity
-  version: 1.0.0
+  description: >-
+    A restful API for generating osm-change based on the diff between geojson
+    and osm entity
+  version: 1.1.0
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-
 paths:
-  '/change':
+  /change:
     post:
       summary: Generates an osm-change based on external geojson and osm entity
       tags:
@@ -23,15 +24,15 @@ paths:
                 - $ref: '#/components/schemas/NodeChangeRequestBody'
                 - $ref: '#/components/schemas/WayChangeRequestBody'
       responses:
-        201:
+        '201':
           description: Change Generated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeneratedOsmChangeResponse'
-        400:
+        '400':
           $ref: '#/components/responses/BadRequest'
-        422:
+        '422':
           $ref: '#/components/responses/UnprocessableEntity'
         5XX:
           $ref: '#/components/responses/UnexpectedError'

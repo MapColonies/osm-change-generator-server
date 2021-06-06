@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/MapColonies/osm-change-generator-server/compare/v1.0.2...v1.1.0) (2021-06-06)
+
+
+### Features
+
+* **configurations:** added otel support of tracing and metrics ([#33](https://github.com/MapColonies/osm-change-generator-server/issues/33)) ([0eb4dca](https://github.com/MapColonies/osm-change-generator-server/commit/0eb4dca030e7bde6ccc7dad1f4c2852f3799d90b))
+* **configurations:** updates openapi3 version on release ([8d1a43f](https://github.com/MapColonies/osm-change-generator-server/commit/8d1a43f685f21e43ba8c0c298e53f6f6aa8d9acb))
+
+
+### Bug Fixes
+
+* **configurations:** fixed broken liveness ([#36](https://github.com/MapColonies/osm-change-generator-server/issues/36)) ([bef121a](https://github.com/MapColonies/osm-change-generator-server/commit/bef121a43fc2f8d04b93a792a46750ed09e7b888))
+* **configurations:** update and rename .versionrc ([d33a954](https://github.com/MapColonies/osm-change-generator-server/commit/d33a95406188bcf4c3f5dd0eaa0a822e66ce73f8))
+
 ### [1.0.2](https://github.com/MapColonies/osm-change-generator-server/compare/v1.0.1...v1.0.2) (2021-05-05)
 
 
