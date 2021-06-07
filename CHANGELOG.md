@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.1](https://github.com/MapColonies/osm-change-generator-server/compare/v1.1.0...v1.1.1) (2021-06-07)
+
+
+### Bug Fixes
+
+* **configurations:** changed how server is initialized ([#37](https://github.com/MapColonies/osm-change-generator-server/issues/37)) ([44f026b](https://github.com/MapColonies/osm-change-generator-server/commit/44f026b4f19ed451635d8e28843e618c95668485))
+
 ## [1.1.0](https://github.com/MapColonies/osm-change-generator-server/compare/v1.0.2...v1.1.0) (2021-06-06)
 
 
