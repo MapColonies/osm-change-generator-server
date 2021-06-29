@@ -4,19 +4,19 @@ global:
   tracing: {}
   metrics: {}
 
+enabled: true
+environment: development
+replicaCount: 1
+initialDelaySeconds: 60
+
 cloudProvider:
   flavor: "openshift"
-  dockerRegistryUrl: 'my-registry-.io'
-
-enabled: true
-
-environment: development
+  dockerRegistryUrl: 'my-registry.io'
 
 image:
   repository: osm-change-generator-server
   tag: 'latest'
 
-replicaCount: 1
 env:
   port: 8080
   targetPort: 8080
@@ -31,7 +31,7 @@ env:
   metrics:
     enabled: false
     url: http://localhost:55681/v1/metrics
-initialDelaySeconds: 60
+
 resources:
   enabled: false
   value:
@@ -41,6 +41,7 @@ resources:
     requests:
       cpu: 100m
       memory: 128Mi
+
 route:
   enabled: true
   path: /
