@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/MapColonies/osm-change-generator-server/compare/v1.2.1...v1.3.0) (2021-07-08)
+
+
+### Features
+
+* **configurations:** add helm chart for service ([#45](https://github.com/MapColonies/osm-change-generator-server/issues/45)) ([31d8c16](https://github.com/MapColonies/osm-change-generator-server/commit/31d8c169ad1b1becf62396f7a295d2daea62efd6))
+
 ### [1.2.1](https://github.com/MapColonies/osm-change-generator-server/compare/v1.2.0...v1.2.1) (2021-07-06)
 
 ## [1.2.0](https://github.com/MapColonies/osm-change-generator-server/compare/v1.1.1...v1.2.0) (2021-07-01)
