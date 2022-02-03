@@ -90,30 +90,30 @@ describe('change', function () {
 
       it('should return 201 status code on create action for a 3 coordinates node with valued z coordinate', async function () {
         const action = Actions.CREATE;
-          const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson('Point').getTestData();
-          request.geojson.geometry.coordinates = [18, 17, 16];
-          const { osmElements, ...rest } = request;
-          const response = await requestSender.postChange(rest as ChangeRequestBody);
+        const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson('Point').getTestData();
+        request.geojson.geometry.coordinates = [18, 17, 16];
+        const { osmElements, ...rest } = request;
+        const response = await requestSender.postChange(rest as ChangeRequestBody);
 
-          expect(response.status).toBe(httpStatusCodes.CREATED);
-          expect(response.body).toHaveProperty('action', action);
-          expect(response.body).toHaveProperty('externalId', rest.externalId);
-          expect(response.body).toHaveProperty('tempOsmId', -1);
-          expect((response.body as ChangeModel).change).toMatchObject(expectedResult);
+        expect(response.status).toBe(httpStatusCodes.CREATED);
+        expect(response.body).toHaveProperty('action', action);
+        expect(response.body).toHaveProperty('externalId', rest.externalId);
+        expect(response.body).toHaveProperty('tempOsmId', -1);
+        expect((response.body as ChangeModel).change).toMatchObject(expectedResult);
       });
 
       it('should return 201 status code on create action for a 3 coordinates node with z coordinate 0', async function () {
         const action = Actions.CREATE;
-          const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson('Point').getTestData();
-          request.geojson.geometry.coordinates = [18, 17, 0];
-          const { osmElements, ...rest } = request;
-          const response = await requestSender.postChange(rest as ChangeRequestBody);
+        const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson('Point').getTestData();
+        request.geojson.geometry.coordinates = [18, 17, 0];
+        const { osmElements, ...rest } = request;
+        const response = await requestSender.postChange(rest as ChangeRequestBody);
 
-          expect(response.status).toBe(httpStatusCodes.CREATED);
-          expect(response.body).toHaveProperty('action', action);
-          expect(response.body).toHaveProperty('externalId', rest.externalId);
-          expect(response.body).toHaveProperty('tempOsmId', -1);
-          expect((response.body as ChangeModel).change).toMatchObject(expectedResult);
+        expect(response.status).toBe(httpStatusCodes.CREATED);
+        expect(response.body).toHaveProperty('action', action);
+        expect(response.body).toHaveProperty('externalId', rest.externalId);
+        expect(response.body).toHaveProperty('tempOsmId', -1);
+        expect((response.body as ChangeModel).change).toMatchObject(expectedResult);
       });
     });
 
@@ -159,7 +159,7 @@ describe('change', function () {
 
       it('should fail if point geojson geometry coordinates has more coordinates than 3', async function () {
         const request = testDataBuilder.setAction(Actions.CREATE).setGeojson('Point').getResult();
-        request.geojson.geometry.coordinates = [1, 2, 3, 4]
+        request.geojson.geometry.coordinates = [1, 2, 3, 4];
 
         const response = await requestSender.postChange(request);
         const message = (response.body as { message: string }).message;
