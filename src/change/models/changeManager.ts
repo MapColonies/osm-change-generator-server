@@ -112,20 +112,29 @@ export const throwParseOsmElementsError = (elementType: OsmElementType): never =
 @injectable()
 export class ChangeManager {
   public constructor(@inject(Services.LOGGER) private readonly logger: Logger) {}
+
   public generateChange(action: Actions, geojson: FlattenedGeoJSON, osmElements: OsmApiElements, externalId: string): ChangeModel {
-    const osmChange: OsmChange = generateOsmChange(action, geojson, osmElements);
-    let changeModel: ChangeModel = {
-      action,
-      change: osmChange,
-      externalId,
-    };
-    if (action === Actions.CREATE && osmChange.create) {
-      const tempOsmId = getTempOsmId(osmChange.create);
-      changeModel = {
-        ...changeModel,
-        tempOsmId,
+    this.logger.info({ msg: 'starting change generation', externalId });
+
+    try {
+      const osmChange = generateOsmChange(action, geojson, osmElements);
+
+      let changeModel: ChangeModel = {
+        action,
+        change: osmChange,
+        externalId,
       };
+      if (action === Actions.CREATE && osmChange.create) {
+        const tempOsmId = getTempOsmId(osmChange.create);
+        changeModel = {
+          ...changeModel,
+          tempOsmId,
+        };
+      }
+      return changeModel;
+    } catch (e) {
+      this.logger.error({ err: e as Error, externalId, msg: 'failed to generate change' });
+      throw e;
     }
-    return changeModel;
   }
 }
