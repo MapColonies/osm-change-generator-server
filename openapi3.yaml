@@ -21,8 +21,14 @@ paths:
           application/json:
             schema:
               oneOf:
-                - $ref: '#/components/schemas/NodeChangeRequestBody'
-                - $ref: '#/components/schemas/WayChangeRequestBody'
+                - $ref: '#/components/schemas/CreateOrModifyChangeRequestBody'
+                - $ref: '#/components/schemas/DeleteChangeRequestBody'
+              discriminator:
+                propertyName: action
+                mapping:
+                  create: '#/components/schemas/CreateOrModifyChangeRequestBody'
+                  modify: '#/components/schemas/CreateOrModifyChangeRequestBody'
+                  delete: '#/components/schemas/DeleteChangeRequestBody'
       responses:
         '201':
           description: Change Generated
@@ -180,7 +186,6 @@ components:
       required:
         - type
         - properties
-        - geometry
       properties:
         type:
           type: string
@@ -188,34 +193,41 @@ components:
             - Feature
         properties:
           type: object
-        geometry:
-          type: object
-          required:
-            - type
-            - coordinates
-          properties:
-            type:
-              type: string
-              enum:
-                - Point
-                - LineString
-                - Polygon
-            coordinates:
-              type: array
-              items: {}
-            bbox:
-              type: array
-              minItems: 4
-              items:
-                type: number
         bbox:
           type: array
           minItems: 4
           items:
             type: number
-    GeojsonPoint:
+    BaseGeojsonWithGeometry:
       allOf:
         - $ref: '#/components/schemas/BaseGeojson'
+        - required:
+            - geometry
+        - type: object
+          properties:
+            geometry:
+              type: object
+              required:
+                - type
+                - coordinates
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - Point
+                    - LineString
+                    - Polygon
+                coordinates:
+                  type: array
+                  items: {}
+                bbox:
+                  type: array
+                  minItems: 4
+                  items:
+                    type: number
+    GeojsonPoint:
+      allOf:
+        - $ref: '#/components/schemas/BaseGeojsonWithGeometry'
         - type: object
           properties:
             geometry:
@@ -233,7 +245,7 @@ components:
                     type: number
     GeojsonLineString:
       allOf:
-        - $ref: '#/components/schemas/BaseGeojson'
+        - $ref: '#/components/schemas/BaseGeojsonWithGeometry'
         - type: object
           properties:
             geometry:
@@ -253,7 +265,7 @@ components:
                       type: number
     GeojsonPolygon:
       allOf:
-        - $ref: '#/components/schemas/BaseGeojson'
+        - $ref: '#/components/schemas/BaseGeojsonWithGeometry'
         - type: object
           properties:
             geometry:
@@ -308,6 +320,19 @@ components:
               oneOf:
                 - $ref: '#/components/schemas/GeojsonLineString'
                 - $ref: '#/components/schemas/GeojsonPolygon'
+            osmElements:
+              $ref: '#/components/schemas/OsmApiElements'
+    CreateOrModifyChangeRequestBody:
+      oneOf:
+        - $ref: '#/components/schemas/NodeChangeRequestBody'
+        - $ref: '#/components/schemas/WayChangeRequestBody'
+    DeleteChangeRequestBody:
+      allOf:
+        - $ref: '#/components/schemas/BaseSchema'
+        - type: object
+          properties:
+            geojson:
+              $ref: '#/components/schemas/BaseGeojson'
             osmElements:
               $ref: '#/components/schemas/OsmApiElements'
     GeneratedOsmChangeResponse:
