@@ -1,6 +1,5 @@
 import * as supertest from 'supertest';
 import { Application } from 'express';
-
 import { container } from 'tsyringe';
 import { ServerBuilder } from '../../../../src/serverBuilder';
 import { ChangeRequestBody } from '../../../../src/change/controllers/changeController';

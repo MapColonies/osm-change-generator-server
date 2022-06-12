@@ -1,8 +1,7 @@
 import { OsmChange, OsmElementType } from '@map-colonies/node-osm-elements';
 import { Actions } from '@map-colonies/osm-change-generator';
-
+import { FeatureType, FlattenedGeoJSON } from '../../src/change/models/geojsonTypes';
 import { ChangeRequestBody } from '../../src/change/controllers/changeController';
-import { FeatureType } from '../../src/change/models/geojsonTypes';
 import { getFeatureMap, OsmApiToElement, osmElementsMap } from './samples/sampleData';
 import { OSM_CHANGE_SAMPLES } from './samples/sampleOsmChanges';
 import { externalId } from './constants';
@@ -12,8 +11,10 @@ interface TestData {
   expectedResult: OsmChange;
 }
 
+export type TestChangeRequestBody = Omit<ChangeRequestBody, 'geojson'> & { geojson: FlattenedGeoJSON };
+
 export class TestDataBuilder {
-  private request: Partial<ChangeRequestBody> = {};
+  private request: Partial<TestChangeRequestBody> = {};
 
   public constructor() {
     this.reset();

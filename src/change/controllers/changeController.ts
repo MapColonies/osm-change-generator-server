@@ -7,7 +7,7 @@ import { Logger } from '@map-colonies/js-logger';
 import { Services } from '../../common/constants';
 import { ChangeManager } from '../models/changeManager';
 import { ChangeModel } from '../models/change';
-import { FlattenedGeoJSON } from '../models/geojsonTypes';
+import { FlattenOptionalGeometry } from '../models/geojsonTypes';
 import { OsmApiElements } from '../models/helpers';
 
 type CreateResourceHandler = RequestHandler<undefined, ChangeModel, ChangeRequestBody>;
@@ -16,7 +16,7 @@ export interface ChangeRequestBody {
   action: Actions;
   externalId: string;
   osmElements: OsmApiElements;
-  geojson: FlattenedGeoJSON;
+  geojson: FlattenOptionalGeometry;
 }
 
 @injectable()

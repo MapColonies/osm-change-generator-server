@@ -14,11 +14,34 @@ import { Services } from '../../common/constants';
 import { validateArrayHasElements } from '../../common/util';
 import { ChangeModel } from './change';
 import { OsmApiElements } from './helpers';
-import { FlattenedGeoJSON } from './geojsonTypes';
+import { FlattenedGeoJSON, FlattenOptionalGeometry } from './geojsonTypes';
 import { ParseOsmElementsError } from './errors';
 import { isNode, isWay } from './helpers';
 
-export const generateOsmChange = (action: Actions, feature: FlattenedGeoJSON, osmElements: OsmApiElements): OsmChange => {
+type GenerateOsmChangeArgs =
+  | { action: Actions.DELETE; osmElements: OsmApiElements }
+  | {
+      action: Actions.CREATE | Actions.MODIFY;
+      osmElements: OsmApiElements;
+      feature: FlattenedGeoJSON;
+    };
+
+export const generateOsmChange = (args: GenerateOsmChangeArgs): OsmChange => {
+  const { action, osmElements } = args;
+
+  if (action === Actions.DELETE) {
+    const includesWay = osmElements.some((element) => isWay(element));
+    if (includesWay) {
+      const oldElement = getOsmWayFromElements(osmElements);
+      return getChangeFromPolygon({ action, oldElement });
+    } else {
+      const oldElement = getNodeFromElements(osmElements);
+      return getChangeFromPoint({ action, oldElement });
+    }
+  }
+
+  let { feature } = args;
+
   switch (feature.geometry.type) {
     case 'Point': {
       feature = feature as FlattenedGeoJSONPoint;
@@ -29,10 +52,6 @@ export const generateOsmChange = (action: Actions, feature: FlattenedGeoJSON, os
         case Actions.MODIFY: {
           const oldElement = getNodeFromElements(osmElements);
           return getChangeFromPoint({ action, feature, oldElement });
-        }
-        case Actions.DELETE: {
-          const oldElement = getNodeFromElements(osmElements);
-          return getChangeFromPoint({ action, oldElement });
         }
       }
       break;
@@ -47,10 +66,6 @@ export const generateOsmChange = (action: Actions, feature: FlattenedGeoJSON, os
           const oldElement = getOsmWayFromElements(osmElements);
           return getChangeFromLine({ action, feature, oldElement });
         }
-        case Actions.DELETE: {
-          const oldElement = getOsmWayFromElements(osmElements);
-          return getChangeFromLine({ action, oldElement });
-        }
       }
       break;
     }
@@ -64,10 +79,6 @@ export const generateOsmChange = (action: Actions, feature: FlattenedGeoJSON, os
           const oldElement = getOsmWayFromElements(osmElements);
           return getChangeFromPolygon({ action, feature, oldElement });
         }
-        case Actions.DELETE: {
-          const oldElement = getOsmWayFromElements(osmElements);
-          return getChangeFromPolygon({ action, oldElement });
-        }
       }
     }
   }
@@ -75,7 +86,7 @@ export const generateOsmChange = (action: Actions, feature: FlattenedGeoJSON, os
 
 export const getNodeFromElements = (elements: OsmApiElements): OsmNode => {
   if (!validateArrayHasElements(elements)) {
-    return throwParseOsmElementsError('node');
+    return throwParseOsmElementsError();
   }
   const node: OsmNode | OsmApiWay = elements[0];
   if (!isNode(node)) {
@@ -105,19 +116,22 @@ export const getTempOsmId = (elements: BaseElement[]): number => {
   return (way as OsmWay).id;
 };
 
-export const throwParseOsmElementsError = (elementType: OsmElementType): never => {
-  throw new ParseOsmElementsError(`Could not parse osm-api-elements, expected ${elementType as string} element`);
+export const throwParseOsmElementsError = (elementType?: OsmElementType): never => {
+  const elaborativeExpected = elementType ? elementType : 'at least one';
+  throw new ParseOsmElementsError(`Could not parse osm-api-elements, expected ${elaborativeExpected} element`);
 };
 
 @injectable()
 export class ChangeManager {
   public constructor(@inject(Services.LOGGER) private readonly logger: Logger) {}
 
-  public generateChange(action: Actions, geojson: FlattenedGeoJSON, osmElements: OsmApiElements, externalId: string): ChangeModel {
+  public generateChange(action: Actions, geojson: FlattenOptionalGeometry, osmElements: OsmApiElements, externalId: string): ChangeModel {
     this.logger.info({ msg: 'starting change generation', externalId });
 
     try {
-      const osmChange = generateOsmChange(action, geojson, osmElements);
+      const args: GenerateOsmChangeArgs =
+        action === Actions.DELETE ? { action, osmElements } : { action, osmElements, feature: geojson as FlattenedGeoJSON };
+      const osmChange = generateOsmChange(args);
 
       let changeModel: ChangeModel = {
         action,
