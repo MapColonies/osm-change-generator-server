@@ -13,6 +13,10 @@ metadata:
     environment: {{ include "osm-change-generator-server.environment" . }}
     release: {{ $releaseName }}
     {{- include "osm-change-generator-server.labels" . | nindent 4 }}
+{{- with .Values.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -28,6 +32,10 @@ spec:
         release: {{ $releaseName }}
         run: {{ $releaseName }}-{{ $chartName }}
         {{- include "osm-change-generator-server.selectorLabels" . | nindent 8 }}
+      annotations:
+{{- with .Values.podAnnotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
       containers:
         - name: {{ $releaseName }}-{{ $chartName }}-deployment
