@@ -7,7 +7,7 @@ import httpLogger from '@map-colonies/express-access-log-middleware';
 import { middleware as OpenApiMiddleware } from 'express-openapi-validator';
 import { container, inject, injectable } from 'tsyringe';
 import { Logger } from '@map-colonies/js-logger';
-import { getTraceContexHeaderMiddleware } from '@map-colonies/telemetry';
+import { defaultMetricsMiddleware, getTraceContexHeaderMiddleware } from '@map-colonies/telemetry';
 import { Services } from './common/constants';
 import { IConfig } from './common/interfaces';
 import { changeRouterFactory } from './change/routes/changeRouter';
@@ -40,6 +40,8 @@ export class ServerBuilder {
   }
 
   private registerPreRoutesMiddleware(): void {
+    this.serverInstance.use('/metrics', defaultMetricsMiddleware());
+
     if (this.config.get<boolean>('server.response.compression.enabled')) {
       this.serverInstance.use(compression(this.config.get<compression.CompressionFilter>('server.response.compression.options')));
     }
