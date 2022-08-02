@@ -2,6 +2,7 @@
 {{- $chartName := include "change-generator.name" . -}}
 {{- $cloudProviderFlavor := include "change-generator.cloudProviderFlavor" . -}}
 {{- $cloudProviderDockerRegistryUrl := include "change-generator.cloudProviderDockerRegistryUrl" . -}}
+{{- $tag := include "change-generator.tag" . -}}
 {{- if .Values.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -43,7 +44,7 @@ spec:
           {{- if eq $cloudProviderFlavor "minikube" }}
           image: {{ .repository }}:{{ .tag }}
           {{- else }}
-          image: {{ $cloudProviderDockerRegistryUrl }}/{{ .repository }}:{{ .tag }}
+          image: {{ $cloudProviderDockerRegistryUrl }}/{{ .repository }}:{{ $tag }}
           {{- end }}
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
