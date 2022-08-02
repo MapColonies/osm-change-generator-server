@@ -18,7 +18,8 @@ cloudProvider:
 
 image:
   repository: osm-change-generator-server
-  tag: 'latest'
+  # tag: 'latest'
+  pullPolicy: Always
 
 env:
   port: 8080
@@ -26,7 +27,6 @@ env:
   protocol: TCP
   logLevel: info
   requestPayloadLimit: 1mb
-  logPrettyPrintEnabled: false
   responseCompressionEnabled: true
   tracing:
     enabled: false
@@ -48,4 +48,6 @@ resources:
 
 route:
   enabled: true
+  tls:
+    termination: edge
   path: /

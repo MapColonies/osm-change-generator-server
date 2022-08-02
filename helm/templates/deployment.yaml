@@ -1,7 +1,8 @@
 {{- $releaseName := .Release.Name -}}
-{{- $chartName := include "osm-change-generator-server.name" . -}}
-{{- $cloudProviderFlavor := include "osm-change-generator-server.cloudProviderFlavor" . -}}
-{{- $cloudProviderDockerRegistryUrl := include "osm-change-generator-server.cloudProviderDockerRegistryUrl" . -}}
+{{- $chartName := include "change-generator.name" . -}}
+{{- $cloudProviderFlavor := include "change-generator.cloudProviderFlavor" . -}}
+{{- $cloudProviderDockerRegistryUrl := include "change-generator.cloudProviderDockerRegistryUrl" . -}}
+{{- $tag := include "change-generator.tag" . -}}
 {{- if .Values.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -10,9 +11,9 @@ metadata:
   labels:
     app: {{ $chartName }}
     component: {{ $chartName }}
-    environment: {{ include "osm-change-generator-server.environment" . }}
+    environment: {{ include "change-generator.environment" . }}
     release: {{ $releaseName }}
-    {{- include "osm-change-generator-server.labels" . | nindent 4 }}
+    {{- include "change-generator.labels" . | nindent 4 }}
 {{- with .Values.annotations }}
   annotations:
 {{ toYaml . | indent 4 }}
@@ -24,14 +25,14 @@ spec:
       app: {{ $chartName }}
       release: {{ $releaseName }}
       run: {{ $releaseName }}-{{ $chartName }}
-      {{- include "osm-change-generator-server.selectorLabels" . | nindent 6 }}
+      {{- include "change-generator.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
         app: {{ $chartName }}
         release: {{ $releaseName }}
         run: {{ $releaseName }}-{{ $chartName }}
-        {{- include "osm-change-generator-server.selectorLabels" . | nindent 8 }}
+        {{- include "change-generator.selectorLabels" . | nindent 8 }}
       annotations:
 {{- with .Values.podAnnotations }}
 {{ toYaml . | indent 8 }}
@@ -43,9 +44,10 @@ spec:
           {{- if eq $cloudProviderFlavor "minikube" }}
           image: {{ .repository }}:{{ .tag }}
           {{- else }}
-          image: {{ $cloudProviderDockerRegistryUrl }}/{{ .repository }}:{{ .tag }}
+          image: {{ $cloudProviderDockerRegistryUrl }}/{{ .repository }}:{{ $tag }}
           {{- end }}
           {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: SERVER_PORT
               value: {{ .Values.env.targetPort | quote }}

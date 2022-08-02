@@ -1,6 +1,6 @@
 {{- $releaseName := .Release.Name -}}
-{{- $chartName := include "osm-change-generator-server.name" . -}}
-{{- $cloudProviderFlavor := include "osm-change-generator-server.cloudProviderFlavor" . -}}
+{{- $chartName := include "change-generator.name" . -}}
+{{- $cloudProviderFlavor := include "change-generator.cloudProviderFlavor" . -}}
 {{- if and (and (.Values.enabled) (eq $cloudProviderFlavor "openshift")) (.Values.route.enabled) -}}
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -14,5 +14,5 @@ spec:
     kind: Service
     name: {{ $releaseName }}-{{ $chartName }}
   tls:
-    termination: edge
+    termination: {{ .Values.route.tls.termination }}
 {{- end -}}

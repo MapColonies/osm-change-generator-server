@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "osm-change-generator-server.name" -}}
+{{- define "change-generator.name" -}}
 {{- default .Chart.Name | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "osm-change-generator-server.fullname" -}}
+{{- define "change-generator.fullname" -}}
 {{- $name := default .Chart.Name }}
 {{- if contains $name .Release.Name }}
 {{- .Release.Name | trunc 63 | trimSuffix "-" }}
@@ -20,18 +20,25 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{/*
+Returns the tag of the chart.
+*/}}
+{{- define "change-generator.tag" -}}
+{{- default (printf "v%s" .Chart.AppVersion) .Values.image.tag }}
+{{- end }}
+
+{{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "osm-change-generator-server.chart" -}}
+{{- define "change-generator.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "osm-change-generator-server.labels" -}}
-helm.sh/chart: {{ include "osm-change-generator-server.chart" . }}
-{{ include "osm-change-generator-server.selectorLabels" . }}
+{{- define "change-generator.labels" -}}
+helm.sh/chart: {{ include "change-generator.chart" . }}
+{{ include "change-generator.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -41,15 +48,15 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "osm-change-generator-server.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "osm-change-generator-server.name" . }}
+{{- define "change-generator.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "change-generator.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Returns the environment from global if exists or from the chart's values, defaults to development
 */}}
-{{- define "osm-change-generator-server.environment" -}}
+{{- define "change-generator.environment" -}}
 {{- if .Values.global.environment }}
     {{- .Values.global.environment -}}
 {{- else -}}
@@ -60,7 +67,7 @@ Returns the environment from global if exists or from the chart's values, defaul
 {{/*
 Returns the cloud provider name from global if exists or from the chart's values, defaults to minikube
 */}}
-{{- define "osm-change-generator-server.cloudProviderFlavor" -}}
+{{- define "change-generator.cloudProviderFlavor" -}}
 {{- if .Values.global.cloudProvider.flavor }}
     {{- .Values.global.cloudProvider.flavor -}}
 {{- else if .Values.cloudProvider -}}
@@ -73,7 +80,7 @@ Returns the cloud provider name from global if exists or from the chart's values
 {{/*
 Returns the cloud provider docker registry url from global if exists or from the chart's values
 */}}
-{{- define "osm-change-generator-server.cloudProviderDockerRegistryUrl" -}}
+{{- define "change-generator.cloudProviderDockerRegistryUrl" -}}
 {{- if .Values.global.cloudProvider.dockerRegistryUrl }}
     {{- .Values.global.cloudProvider.dockerRegistryUrl -}}
 {{- else if .Values.cloudProvider -}}
@@ -84,7 +91,7 @@ Returns the cloud provider docker registry url from global if exists or from the
 {{/*
 Returns the tracing url from global if exists or from the chart's values
 */}}
-{{- define "osm-change-generator-server.tracingUrl" -}}
+{{- define "change-generator.tracingUrl" -}}
 {{- if .Values.global.tracing.url }}
     {{- .Values.global.tracing.url -}}
 {{- else if .Values.cloudProvider -}}
@@ -95,7 +102,7 @@ Returns the tracing url from global if exists or from the chart's values
 {{/*
 Returns the tracing url from global if exists or from the chart's values
 */}}
-{{- define "osm-change-generator-server.metricsUrl" -}}
+{{- define "change-generator.metricsUrl" -}}
 {{- if .Values.global.metrics.url }}
     {{- .Values.global.metrics.url -}}
 {{- else -}}
