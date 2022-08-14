@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.4](https://github.com/MapColonies/osm-change-generator-server/compare/v1.4.3...v1.4.4) (2022-08-14)
+
+
+### Bug Fixes
+
+* helm changes ([#73](https://github.com/MapColonies/osm-change-generator-server/issues/73)) ([6716bf4](https://github.com/MapColonies/osm-change-generator-server/commit/6716bf436e33dd1a1856c16475b6ba06060064b7))
+
 ### [1.4.3](https://github.com/MapColonies/osm-change-generator-server/compare/v1.4.2...v1.4.3) (2022-06-15)
 
 ### [1.4.2](https://github.com/MapColonies/osm-change-generator-server/compare/v1.4.1...v1.4.2) (2022-06-15)
