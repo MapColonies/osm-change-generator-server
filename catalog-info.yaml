@@ -1,0 +1,384 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: osm-change-generator
+  description: Generates an osm-change from geoJSON and OSM entity 
+  links:
+  - url: https://mapcolonies.atlassian.net/wiki/spaces/MAPConflicResolution/pages/1353613504/Ingestion#Details-about-our-services
+    title: Confluence 
+    icon: Article
+  annotations:
+    github.com/project-slug: MapColonies/osm-change-generator-server
+spec:
+  type: service
+  lifecycle: production
+  owner: vector-team
+  system: vector-ingestion
+  dependsOn:
+    - component:default/osm-change-generator
+  providesApis:
+    - osm-change-generator-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: osm-change-generator-api
+  description: An API for generating osm-change based on the diff between GeoJSON and OSM entity
+spec:
+  type: openapi
+  lifecycle: production
+  owner: vector-team
+  system: vector-ingestion
+  definition: |
+    openapi: 3.0.1
+    info:
+      title: osm-change-generator-server
+      description: >-
+        A restful API for generating osm-change based on the diff between geojson
+        and osm entity
+      version: 1.4.4
+      license:
+        name: MIT
+        url: https://opensource.org/licenses/MIT
+    paths:
+      /change:
+        post:
+          summary: Generates an osm-change based on external geojson and osm entity
+          tags:
+            - change
+          requestBody:
+            description: A JSON containing the geojson and an old osm entity if exists
+            required: true
+            content:
+              application/json:
+                schema:
+                  oneOf:
+                    - $ref: '#/components/schemas/CreateOrModifyChangeRequestBody'
+                    - $ref: '#/components/schemas/DeleteChangeRequestBody'
+                  discriminator:
+                    propertyName: action
+                    mapping:
+                      create: '#/components/schemas/CreateOrModifyChangeRequestBody'
+                      modify: '#/components/schemas/CreateOrModifyChangeRequestBody'
+                      delete: '#/components/schemas/DeleteChangeRequestBody'
+          responses:
+            '201':
+              description: Change Generated
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/GeneratedOsmChangeResponse'
+            '400':
+              $ref: '#/components/responses/BadRequest'
+            '422':
+              $ref: '#/components/responses/UnprocessableEntity'
+            5XX:
+              $ref: '#/components/responses/UnexpectedError'
+    components:
+      responses:
+        BadRequest:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        UnexpectedError:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        UnprocessableEntity:
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      schemas:
+        Error:
+          type: object
+          required:
+            - message
+          properties:
+            message:
+              type: string
+        BaseOsmElement:
+          type: object
+          required:
+            - type
+            - id
+          properties:
+            type:
+              type: string
+              enum:
+                - node
+                - way
+                - relation
+            id:
+              type: integer
+              format: int64
+              minimum: 0
+              example: 666
+              exclusiveMinimum: true
+            timestamp:
+              type: string
+            version:
+              type: number
+            changeset:
+              type: number
+            user:
+              type: string
+            tags:
+              type: object
+              additionalProperties:
+                type: string
+        OsmNode:
+          allOf:
+            - $ref: '#/components/schemas/BaseOsmElement'
+            - type: object
+              required:
+                - lat
+                - lon
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - node
+                lat:
+                  type: number
+                lon:
+                  type: number
+        OsmWay:
+          allOf:
+            - $ref: '#/components/schemas/BaseOsmElement'
+            - type: object
+              required:
+                - nodes
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - way
+                nodes:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/OsmNode'
+        OsmApiWay:
+          allOf:
+            - $ref: '#/components/schemas/BaseOsmElement'
+            - type: object
+              required:
+                - nodes
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - way
+                nodes:
+                  type: array
+                  items:
+                    type: number
+        OsmElement:
+          oneOf:
+            - $ref: '#/components/schemas/OsmNode'
+            - $ref: '#/components/schemas/OsmWay'
+        OsmApiElements:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/OsmNode'
+              - $ref: '#/components/schemas/OsmApiWay'
+        OsmChange:
+          type: object
+          required:
+            - type
+          properties:
+            type:
+              type: string
+              enum:
+                - osmchange
+            version:
+              type: string
+            generator:
+              type: string
+            create:
+              type: array
+              items:
+                $ref: '#/components/schemas/OsmElement'
+            modify:
+              type: array
+              items:
+                $ref: '#/components/schemas/OsmElement'
+            delete:
+              type: array
+              items:
+                $ref: '#/components/schemas/OsmElement'
+        BaseGeojson:
+          type: object
+          required:
+            - type
+            - properties
+          properties:
+            type:
+              type: string
+              enum:
+                - Feature
+            properties:
+              type: object
+            bbox:
+              type: array
+              minItems: 4
+              items:
+                type: number
+        BaseGeojsonWithGeometry:
+          allOf:
+            - $ref: '#/components/schemas/BaseGeojson'
+            - required:
+                - geometry
+            - type: object
+              properties:
+                geometry:
+                  type: object
+                  required:
+                    - type
+                    - coordinates
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                        - Point
+                        - LineString
+                        - Polygon
+                    coordinates:
+                      type: array
+                      items: {}
+                    bbox:
+                      type: array
+                      minItems: 4
+                      items:
+                        type: number
+        GeojsonPoint:
+          allOf:
+            - $ref: '#/components/schemas/BaseGeojsonWithGeometry'
+            - type: object
+              properties:
+                geometry:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                        - Point
+                    coordinates:
+                      type: array
+                      minItems: 2
+                      maxItems: 3
+                      items:
+                        type: number
+        GeojsonLineString:
+          allOf:
+            - $ref: '#/components/schemas/BaseGeojsonWithGeometry'
+            - type: object
+              properties:
+                geometry:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                        - LineString
+                    coordinates:
+                      type: array
+                      minItems: 2
+                      items:
+                        type: array
+                        minItems: 2
+                        items:
+                          type: number
+        GeojsonPolygon:
+          allOf:
+            - $ref: '#/components/schemas/BaseGeojsonWithGeometry'
+            - type: object
+              properties:
+                geometry:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                        - Polygon
+                    coordinates:
+                      type: array
+                      items:
+                        type: array
+                        minItems: 4
+                        items:
+                          type: array
+                          minItems: 2
+                          items:
+                            type: number
+        BaseSchema:
+          type: object
+          properties:
+            externalId:
+              type: string
+              example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+              minLength: 1
+              maxLength: 68
+            action:
+              type: string
+              enum:
+                - create
+                - modify
+                - delete
+          required:
+            - externalId
+            - action
+        NodeChangeRequestBody:
+          allOf:
+            - $ref: '#/components/schemas/BaseSchema'
+            - type: object
+              properties:
+                geojson:
+                  $ref: '#/components/schemas/GeojsonPoint'
+                osmElements:
+                  $ref: '#/components/schemas/OsmApiElements'
+        WayChangeRequestBody:
+          allOf:
+            - $ref: '#/components/schemas/BaseSchema'
+            - type: object
+              properties:
+                geojson:
+                  oneOf:
+                    - $ref: '#/components/schemas/GeojsonLineString'
+                    - $ref: '#/components/schemas/GeojsonPolygon'
+                osmElements:
+                  $ref: '#/components/schemas/OsmApiElements'
+        CreateOrModifyChangeRequestBody:
+          oneOf:
+            - $ref: '#/components/schemas/NodeChangeRequestBody'
+            - $ref: '#/components/schemas/WayChangeRequestBody'
+        DeleteChangeRequestBody:
+          allOf:
+            - $ref: '#/components/schemas/BaseSchema'
+            - type: object
+              properties:
+                geojson:
+                  $ref: '#/components/schemas/BaseGeojson'
+                osmElements:
+                  $ref: '#/components/schemas/OsmApiElements'
+        GeneratedOsmChangeResponse:
+          allOf:
+            - $ref: '#/components/schemas/BaseSchema'
+            - type: object
+              required:
+                - change
+              properties:
+                change:
+                  $ref: '#/components/schemas/OsmChange'
+                tempOsmId:
+                  type: integer
+                  format: int64
+                  maximum: 0
+                  example: -666
+                  exclusiveMaximum: true
