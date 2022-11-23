@@ -1,7 +1,7 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: osm-change-generator
+  name: osm-change-generator-server
   description: Generates an osm-change from geoJSON and OSM entity 
   links:
   - url: https://mapcolonies.atlassian.net/wiki/spaces/MAPConflicResolution/pages/1353613504/Ingestion#Details-about-our-services
