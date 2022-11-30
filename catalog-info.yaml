@@ -9,6 +9,10 @@ metadata:
     icon: Article
   annotations:
     github.com/project-slug: MapColonies/osm-change-generator-server
+  tags: 
+    - Node.js
+    - TypeScript
+    - Express.js
 spec:
   type: service
   lifecycle: production
@@ -16,6 +20,7 @@ spec:
   system: vector-ingestion
   dependsOn:
     - component:default/osm-change-generator
+    - component:default/node-osm-elements
   providesApis:
     - osm-change-generator-api
 ---
