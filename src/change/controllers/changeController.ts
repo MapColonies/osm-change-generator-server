@@ -21,7 +21,10 @@ export interface ChangeRequestBody {
 
 @injectable()
 export class ChangeController {
-  public constructor(@inject(Services.LOGGER) private readonly logger: Logger, @inject(ChangeManager) private readonly manager: ChangeManager) {}
+  public constructor(
+    @inject(Services.LOGGER) private readonly logger: Logger,
+    @inject(ChangeManager) private readonly manager: ChangeManager
+  ) {}
   public createResource: CreateResourceHandler = (req, res, next) => {
     const { action, geojson, osmElements, externalId } = req.body;
     let change: ChangeModel;
