@@ -12,7 +12,17 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   collectCoverage: true,
-  collectCoverageFrom: ['<rootDir>/src/change/models/**/*.ts', '!**/node_modules/**', '!**/vendor/**'],
+  collectCoverageFrom: [
+    '<rootDir>/src/change/models/**/*.ts',
+    '<rootDir>/src/**/*.ts',
+    '!*/node_modules/',
+    '!/vendor/**',
+    '!*/common/**',
+    '!**/controllers/**',
+    '!**/routes/**',
+    '!<rootDir>/src/*',
+  ],
+  coverageDirectory: '<rootDir>/coverage',
   coverageReporters: ['text', 'html', 'json'],
   coverageThreshold: {
     global: {
