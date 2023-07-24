@@ -171,7 +171,7 @@ describe('change', function () {
         const message = (response.body as { message: string }).message;
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(message).toContain('geojson.geometry.coordinates should NOT have fewer than 2 items');
+        expect(message).toContain('request/geojson/geometry/coordinates must NOT have fewer than 2 items');
       });
 
       it('should return 400 if point geojson geometry coordinates has more coordinates than 3', async function () {
@@ -182,7 +182,7 @@ describe('change', function () {
         const message = (response.body as { message: string }).message;
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(message).toContain('geojson.geometry.coordinates should NOT have more than 3 items');
+        expect(message).toContain('request/geojson/geometry/coordinates must NOT have more than 3 items');
       });
 
       it.each([...getAllFeatureCasesByAction(Actions.CREATE), ...getAllFeatureCasesByAction(Actions.MODIFY)])(
@@ -194,7 +194,7 @@ describe('change', function () {
 
           expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
           const message = (response.body as { message: string }).message;
-          expect(message).toContain("geojson should have required property 'geometry'");
+          expect(message).toContain("request/geojson must have required property 'geometry'");
         }
       );
     });
