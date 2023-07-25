@@ -10,9 +10,11 @@ function registerTestValues(): void {
   container.register(Services.CONFIG, { useValue: config });
   container.register(Services.LOGGER, { useValue: jsLogger({ enabled: false }) });
 
-  container.register(Services.TRACER, { useValue: trace.getTracer('test') });
-
   container.register(Services.METER, { useValue: metrics.getMeter('test') });
+
+  // if sdk is not initialized then getTracer returns a NoopTracer
+  const testTracer = trace.getTracer('testTracer');
+  container.register(Services.TRACER, { useValue: testTracer });
 
   // const tracing = new Tracing('app_tracer');
   // const tracer = tracing.start();

@@ -5,7 +5,7 @@ import { metrics } from '@opentelemetry/api-metrics';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import { tracing } from './common/tracing';
-import { Services } from './common/constants';
+import { Services, SERVICE_NAME } from './common/constants';
 import { logMethod } from '@map-colonies/telemetry';
 
 function registerExternalValues(): void {
@@ -20,7 +20,8 @@ function registerExternalValues(): void {
   container.register(Services.METER, { useValue: metrics.getMeter('osm-change-generator') });
 
   tracing.start();
-  const tracer = trace.getTracer('osm-change-generator');
+  // const tracer = trace.getTracer('osm-change-generator');
+  const tracer = trace.getTracer(SERVICE_NAME);
   container.register(Services.TRACER, { useValue: tracer });
 
   container.register('onSignal', {

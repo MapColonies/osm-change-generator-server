@@ -51,3 +51,11 @@ route:
   tls:
     termination: edge
   path: /
+
+ingress:
+  enabled: false
+  path: /
+  host: 'localhost'
+  cors:
+    enabled: true
+    origin: '*'
