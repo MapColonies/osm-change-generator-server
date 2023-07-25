@@ -1,4 +1,5 @@
-// this import must be called before the first import of tsyring
+/* eslint-disable import/first */
+// this import must be called before the first import of tsyringe
 import 'reflect-metadata';
 import './common/tracing';
 import { createServer } from 'http';

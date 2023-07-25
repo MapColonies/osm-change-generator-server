@@ -1,3 +1,4 @@
+import { Counter, Meter } from '@opentelemetry/api-metrics';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
@@ -21,10 +22,15 @@ export interface ChangeRequestBody {
 
 @injectable()
 export class ChangeController {
+  private readonly createdChangeCounter: Counter;
+
   public constructor(
     @inject(Services.LOGGER) private readonly logger: Logger,
-    @inject(ChangeManager) private readonly manager: ChangeManager
-  ) {}
+    @inject(ChangeManager) private readonly manager: ChangeManager,
+    @inject(Services.METER) private readonly meter: Meter
+  ) {
+    this.createdChangeCounter = meter.createCounter('created_change');
+  }
   public createResource: CreateResourceHandler = (req, res, next) => {
     const { action, geojson, osmElements, externalId } = req.body;
     let change: ChangeModel;
@@ -34,6 +40,7 @@ export class ChangeController {
       (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
       return next(error);
     }
+    this.createdChangeCounter.add(1);
     return res.status(httpStatus.CREATED).json(change);
   };
 }

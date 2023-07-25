@@ -6,6 +6,7 @@ import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import { tracing } from './common/tracing';
 import { Services } from './common/constants';
+import { logMethod } from '@map-colonies/telemetry';
 
 function registerExternalValues(): void {
   const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
