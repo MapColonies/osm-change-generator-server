@@ -4,7 +4,7 @@ import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { trace, metrics as OtelMetrics } from '@opentelemetry/api';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import { tracing } from './common/tracing';
-import { Services, SERVICE_NAME } from './common/constants';
+import { SERVICES, SERVICE_NAME } from './common/constants';
 import { changeRouterFactory, CHANGE_ROUTER_SYMBOL } from './change/routes/changeRouter';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 
@@ -23,10 +23,10 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
   const tracer = trace.getTracer(SERVICE_NAME);
 
   const dependencies: InjectionObject<unknown>[] = [
-    { token: Services.CONFIG, provider: { useValue: config } },
-    { token: Services.LOGGER, provider: { useValue: logger } },
-    { token: Services.TRACER, provider: { useValue: tracer } },
-    { token: Services.METER, provider: { useValue: OtelMetrics.getMeter(SERVICE_NAME) } },
+    { token: SERVICES.CONFIG, provider: { useValue: config } },
+    { token: SERVICES.LOGGER, provider: { useValue: logger } },
+    { token: SERVICES.TRACER, provider: { useValue: tracer } },
+    { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeter(SERVICE_NAME) } },
     { token: CHANGE_ROUTER_SYMBOL, provider: { useFactory: changeRouterFactory } },
     {
       token: 'onSignal',

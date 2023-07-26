@@ -10,7 +10,7 @@ import {
 } from '@map-colonies/osm-change-generator';
 import { parseOsmWayApi, BaseElement, OsmNode, OsmWay, OsmChange, OsmElementType, OsmApiWay } from '@map-colonies/node-osm-elements';
 import { Logger } from '@map-colonies/js-logger';
-import { Services } from '../../common/constants';
+import { SERVICES } from '../../common/constants';
 import { validateArrayHasElements } from '../../common/util';
 import { ChangeModel } from './change';
 import { OsmApiElements } from './helpers';
@@ -123,7 +123,7 @@ export const throwParseOsmElementsError = (elementType?: OsmElementType): never 
 
 @injectable()
 export class ChangeManager {
-  public constructor(@inject(Services.LOGGER) private readonly logger: Logger) {}
+  public constructor(@inject(SERVICES.LOGGER) private readonly logger: Logger) {}
 
   public generateChange(action: Actions, geojson: FlattenOptionalGeometry, osmElements: OsmApiElements, externalId: string): ChangeModel {
     this.logger.info({ msg: 'starting change generation', externalId });

@@ -5,7 +5,7 @@ import { injectable, inject } from 'tsyringe';
 import { HttpError } from 'express-openapi-validator/dist/framework/types';
 import { Actions } from '@map-colonies/osm-change-generator';
 import { Logger } from '@map-colonies/js-logger';
-import { Services } from '../../common/constants';
+import { SERVICES } from '../../common/constants';
 import { ChangeManager } from '../models/changeManager';
 import { ChangeModel } from '../models/change';
 import { FlattenOptionalGeometry } from '../models/geojsonTypes';
@@ -25,9 +25,9 @@ export class ChangeController {
   private readonly createdChangeCounter: BoundCounter;
 
   public constructor(
-    @inject(Services.LOGGER) private readonly logger: Logger,
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(ChangeManager) private readonly manager: ChangeManager,
-    @inject(Services.METER) private readonly meter: Meter
+    @inject(SERVICES.METER) private readonly meter: Meter
   ) {
     this.createdChangeCounter = meter.createCounter('created_change');
   }
