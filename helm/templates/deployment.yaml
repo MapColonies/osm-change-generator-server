@@ -41,11 +41,7 @@ spec:
       containers:
         - name: {{ $releaseName }}-{{ $chartName }}-deployment
           {{- with .Values.image }}
-          {{- if eq $cloudProviderFlavor "minikube" }}
-          image: {{ .repository }}:{{ .tag }}
-          {{- else }}
           image: {{ $cloudProviderDockerRegistryUrl }}/{{ .repository }}:{{ $tag }}
-          {{- end }}
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
