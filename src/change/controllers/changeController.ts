@@ -1,4 +1,4 @@
-import { Counter, Meter } from '@opentelemetry/api-metrics';
+import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
@@ -22,7 +22,7 @@ export interface ChangeRequestBody {
 
 @injectable()
 export class ChangeController {
-  private readonly createdChangeCounter: Counter;
+  private readonly createdChangeCounter: BoundCounter;
 
   public constructor(
     @inject(Services.LOGGER) private readonly logger: Logger,

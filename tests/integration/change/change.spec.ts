@@ -1,25 +1,33 @@
+import jsLogger from '@map-colonies/js-logger';
+import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import { container } from 'tsyringe';
+import { getApp } from '../../../src/app';
+import { Services } from '../../../src/common/constants';
 import { Actions } from '@map-colonies/osm-change-generator';
-import { registerTestValues } from '../testContainerConfig';
 import { allFeatureTypes, allFeaturesOnModifyAndDelete, getAllFeatureCasesByAction } from '../../common/constants';
 import { FeatureType, FlattenedGeoJSON } from '../../../src/change/models/geojsonTypes';
 import { ChangeModel } from '../../../src/change/models/change';
 import { ChangeRequestBody } from '../../../src/change/controllers/changeController';
 import { TestDataBuilder } from '../../common/testDataBuilder';
-import * as requestSender from './helpers/requestSender';
+import { ChangeRequestSender } from './helpers/requestSender';
 
 let testDataBuilder: TestDataBuilder;
 
 describe('change', function () {
-  beforeAll(function () {
-    registerTestValues();
-    requestSender.init();
+  let requestSender: ChangeRequestSender;
+  beforeEach(function () {
+    const app = getApp({
+      override: [
+        { token: Services.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+        { token: Services.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
+      ],
+      useChild: true,
+    });
+    requestSender = new ChangeRequestSender(app);
     testDataBuilder = new TestDataBuilder();
   });
 
   afterEach(function () {
-    container.clearInstances();
     testDataBuilder.reset();
   });
 
