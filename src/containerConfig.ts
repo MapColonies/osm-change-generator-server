@@ -26,7 +26,7 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
     { token: SERVICES.CONFIG, provider: { useValue: config } },
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
-    { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeter(SERVICE_NAME) } },
+    { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
     { token: CHANGE_ROUTER_SYMBOL, provider: { useFactory: changeRouterFactory } },
     {
       token: 'onSignal',

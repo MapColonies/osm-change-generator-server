@@ -1,11 +1,6 @@
 module.exports = {
   transform: {
-    '^.+\\.ts$': 'ts-jest',
-  },
-  globals: {
-    'ts-jest': {
-      tsConfig: 'tsconfig.test.json',
-    },
+    '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }],
   },
   testMatch: ['<rootDir>/tests/unit/**/*.spec.ts'],
   reporters: [
