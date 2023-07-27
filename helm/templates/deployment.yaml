@@ -2,6 +2,7 @@
 {{- $chartName := include "change-generator.name" . -}}
 {{- $cloudProviderFlavor := include "change-generator.cloudProviderFlavor" . -}}
 {{- $cloudProviderDockerRegistryUrl := include "change-generator.cloudProviderDockerRegistryUrl" . -}}
+{{- $cloudProviderImagePullSecretName := include "change-generator.cloudProviderImagePullSecretName" . -}}
 {{- $tag := include "change-generator.tag" . -}}
 {{- if .Values.enabled -}}
 apiVersion: apps/v1
@@ -38,9 +39,9 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
-    {{- if .Values.cloudProvider.imagePullSecretName }}
+    {{- if $cloudProviderImagePullSecretName }}
       imagePullSecrets:
-        - name: {{ .Values.cloudProvider.imagePullSecretName | quote }}
+        - name: {{ $cloudProviderImagePullSecretName | quote }}
     {{- end }}
       containers:
         - name: {{ $releaseName }}-{{ $chartName }}-deployment
