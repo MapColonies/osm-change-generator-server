@@ -1,10 +1,13 @@
 import config from 'config';
+import client from 'prom-client';
+import { instancePerContainerCachingFactory } from 'tsyringe';
 import { getOtelMixin, Metrics } from '@map-colonies/telemetry';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { trace, metrics as OtelMetrics } from '@opentelemetry/api';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import { tracing } from './common/tracing';
-import { SERVICES, SERVICE_NAME } from './common/constants';
+import { IConfig } from './common/interfaces';
+import { SERVICES, SERVICE_NAME, METRICS_REGISTRY } from './common/constants';
 import { changeRouterFactory, CHANGE_ROUTER_SYMBOL } from './change/routes/changeRouter';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 
@@ -28,6 +31,17 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
     { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
     { token: CHANGE_ROUTER_SYMBOL, provider: { useFactory: changeRouterFactory } },
+    {
+      token: METRICS_REGISTRY,
+      provider: {
+        useFactory: instancePerContainerCachingFactory((container) => {
+          const config = container.resolve<IConfig>(SERVICES.CONFIG);
+
+          client.register.setDefaultLabels({ project: config.get<string>('app.projectName') });
+          return client.register;
+        }),
+      },
+    },
     {
       token: 'onSignal',
       provider: {

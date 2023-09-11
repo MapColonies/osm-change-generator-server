@@ -1,3 +1,4 @@
+import client from 'prom-client';
 import { Actions } from '@map-colonies/osm-change-generator';
 import jsLogger from '@map-colonies/js-logger';
 import { ChangeManager } from '../../../../src/change/models/changeManager';
@@ -14,7 +15,7 @@ describe('ChangeManager', () => {
     testDataBuilder = new TestDataBuilder();
   });
   beforeEach(function () {
-    changeManager = new ChangeManager(jsLogger({ enabled: false }));
+    changeManager = new ChangeManager(jsLogger({ enabled: false }), new client.Registry);
   });
   describe('#generateChange', () => {
     it.each(allFeatureTypes)('should return a create changeModel with tempOsmId for create action and %s feature', (type: FeatureType) => {

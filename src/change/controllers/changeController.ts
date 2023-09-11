@@ -1,4 +1,3 @@
-import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
@@ -22,15 +21,11 @@ export interface ChangeRequestBody {
 
 @injectable()
 export class ChangeController {
-  private readonly createdChangeCounter: BoundCounter;
-
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(ChangeManager) private readonly manager: ChangeManager,
-    @inject(SERVICES.METER) private readonly meter: Meter
-  ) {
-    this.createdChangeCounter = meter.createCounter('created_change');
-  }
+    @inject(ChangeManager) private readonly manager: ChangeManager
+  ) {}
+
   public createChange: CreateChangeHandler = (req, res, next) => {
     const { action, geojson, osmElements, externalId } = req.body;
     let change: ChangeModel;
@@ -40,7 +35,6 @@ export class ChangeController {
       (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
       return next(error);
     }
-    this.createdChangeCounter.add(1);
     return res.status(httpStatus.CREATED).json(change);
   };
 }
