@@ -11,7 +11,7 @@ import { ChangeModel } from '../models/change';
 import { FlattenOptionalGeometry } from '../models/geojsonTypes';
 import { OsmApiElements } from '../models/helpers';
 
-type CreateResourceHandler = RequestHandler<undefined, ChangeModel, ChangeRequestBody>;
+type CreateChangeHandler = RequestHandler<undefined, ChangeModel, ChangeRequestBody>;
 
 export interface ChangeRequestBody {
   action: Actions;
@@ -31,7 +31,7 @@ export class ChangeController {
   ) {
     this.createdChangeCounter = meter.createCounter('created_change');
   }
-  public createResource: CreateResourceHandler = (req, res, next) => {
+  public createChange: CreateChangeHandler = (req, res, next) => {
     const { action, geojson, osmElements, externalId } = req.body;
     let change: ChangeModel;
     try {
