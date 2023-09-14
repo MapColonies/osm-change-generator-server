@@ -1,22 +1,29 @@
-import express from 'express';
+import express, { Router } from 'express';
+import { Registry } from 'prom-client';
 import bodyParser from 'body-parser';
 import compression from 'compression';
+import { inject, injectable } from 'tsyringe';
 import { getErrorHandlerMiddleware } from '@map-colonies/error-express-handler';
 import { OpenapiViewerRouter, OpenapiRouterConfig } from '@map-colonies/openapi-express-viewer';
 import httpLogger from '@map-colonies/express-access-log-middleware';
 import { middleware as OpenApiMiddleware } from 'express-openapi-validator';
-import { container, inject, injectable } from 'tsyringe';
 import { Logger } from '@map-colonies/js-logger';
 import { defaultMetricsMiddleware, getTraceContexHeaderMiddleware } from '@map-colonies/telemetry';
-import { Services } from './common/constants';
+import { metricsMiddleware } from '@map-colonies/telemetry';
+import { SERVICES, METRICS_REGISTRY } from './common/constants';
 import { IConfig } from './common/interfaces';
-import { changeRouterFactory } from './change/routes/changeRouter';
+import { CHANGE_ROUTER_SYMBOL } from './change/routes/changeRouter';
 
 @injectable()
 export class ServerBuilder {
   private readonly serverInstance: express.Application;
 
-  public constructor(@inject(Services.CONFIG) private readonly config: IConfig, @inject(Services.LOGGER) private readonly logger: Logger) {
+  public constructor(
+    @inject(SERVICES.CONFIG) private readonly config: IConfig,
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(CHANGE_ROUTER_SYMBOL) private readonly changeRouter: Router,
+    @inject(METRICS_REGISTRY) private readonly metricsRegistry?: Registry
+  ) {
     this.serverInstance = express();
   }
 
@@ -30,17 +37,22 @@ export class ServerBuilder {
 
   private buildRoutes(): void {
     this.buildDocsRoutes();
-    this.serverInstance.use('/change', changeRouterFactory(container));
+    this.serverInstance.use('/change', this.changeRouter);
   }
 
   private buildDocsRoutes(): void {
-    const openapiRouter = new OpenapiViewerRouter(this.config.get<OpenapiRouterConfig>('openapiConfig'));
+    const openapiRouter = new OpenapiViewerRouter({
+      ...this.config.get<OpenapiRouterConfig>('openapiConfig'),
+      filePathOrSpec: this.config.get<string>('openapiConfig.filePath'),
+    });
     openapiRouter.setup();
     this.serverInstance.use(this.config.get<string>('openapiConfig.basePath'), openapiRouter.getRouter());
   }
 
   private registerPreRoutesMiddleware(): void {
-    this.serverInstance.use('/metrics', defaultMetricsMiddleware());
+    if (this.metricsRegistry) {
+      this.serverInstance.use('/metrics', metricsMiddleware(this.metricsRegistry));
+    }
 
     if (this.config.get<boolean>('server.response.compression.enabled')) {
       this.serverInstance.use(compression(this.config.get<compression.CompressionFilter>('server.response.compression.options')));

@@ -1,25 +1,35 @@
-import httpStatusCodes from 'http-status-codes';
-import { container } from 'tsyringe';
+import client from 'prom-client';
+import jsLogger from '@map-colonies/js-logger';
+import { trace } from '@opentelemetry/api';
 import { Actions } from '@map-colonies/osm-change-generator';
-import { registerTestValues } from '../testContainerConfig';
+import httpStatusCodes from 'http-status-codes';
+import { getApp } from '../../../src/app';
+import { SERVICES, METRICS_REGISTRY } from '../../../src/common/constants';
 import { allFeatureTypes, allFeaturesOnModifyAndDelete, getAllFeatureCasesByAction } from '../../common/constants';
 import { FeatureType, FlattenedGeoJSON } from '../../../src/change/models/geojsonTypes';
 import { ChangeModel } from '../../../src/change/models/change';
 import { ChangeRequestBody } from '../../../src/change/controllers/changeController';
 import { TestDataBuilder } from '../../common/testDataBuilder';
-import * as requestSender from './helpers/requestSender';
+import { ChangeRequestSender } from './helpers/requestSender';
 
 let testDataBuilder: TestDataBuilder;
 
 describe('change', function () {
-  beforeAll(function () {
-    registerTestValues();
-    requestSender.init();
+  let requestSender: ChangeRequestSender;
+  beforeEach(function () {
+    const app = getApp({
+      override: [
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
+        { token: METRICS_REGISTRY, provider: { useValue: new client.Registry() } },
+      ],
+      useChild: true,
+    });
+    requestSender = new ChangeRequestSender(app);
     testDataBuilder = new TestDataBuilder();
   });
 
   afterEach(function () {
-    container.clearInstances();
     testDataBuilder.reset();
   });
 
@@ -171,7 +181,7 @@ describe('change', function () {
         const message = (response.body as { message: string }).message;
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(message).toContain('geojson.geometry.coordinates should NOT have fewer than 2 items');
+        expect(message).toContain('request/geojson/geometry/coordinates must NOT have fewer than 2 items');
       });
 
       it('should return 400 if point geojson geometry coordinates has more coordinates than 3', async function () {
@@ -182,7 +192,7 @@ describe('change', function () {
         const message = (response.body as { message: string }).message;
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(message).toContain('geojson.geometry.coordinates should NOT have more than 3 items');
+        expect(message).toContain('request/geojson/geometry/coordinates must NOT have more than 3 items');
       });
 
       it.each([...getAllFeatureCasesByAction(Actions.CREATE), ...getAllFeatureCasesByAction(Actions.MODIFY)])(
@@ -194,7 +204,7 @@ describe('change', function () {
 
           expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
           const message = (response.body as { message: string }).message;
-          expect(message).toContain("geojson should have required property 'geometry'");
+          expect(message).toContain("request/geojson must have required property 'geometry'");
         }
       );
     });

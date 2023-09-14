@@ -2,14 +2,14 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: osm-change-generator-server
-  description: Generates an osm-change from geoJSON and OSM entity 
+  description: Generates an osm-change from geoJSON and OSM entity
   links:
-  - url: https://mapcolonies.atlassian.net/wiki/spaces/MAPConflicResolution/pages/1353613504/Ingestion#Details-about-our-services
-    title: Confluence 
-    icon: Article
+    - url: https://mapcolonies.atlassian.net/wiki/spaces/MAPConflicResolution/pages/1353613504/Ingestion#Details-about-our-services
+      title: Confluence
+      icon: Article
   annotations:
     github.com/project-slug: MapColonies/osm-change-generator-server
-  tags: 
+  tags:
     - nodejs
     - typescript
     - expressjs

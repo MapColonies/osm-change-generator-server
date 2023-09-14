@@ -1,14 +1,5 @@
 # osm-change-generator-server
 
-----------------------------------
-
-![badge-alerts-lgtm](https://img.shields.io/lgtm/alerts/github/MapColonies/osm-change-generator-server?style=for-the-badge)
-
-![grade-badge-lgtm](https://img.shields.io/lgtm/grade/javascript/github/MapColonies/osm-change-generator-server?style=for-the-badge)
-
-![snyk](https://img.shields.io/snyk/vulnerabilities/github/MapColonies/osm-change-generator-server?style=for-the-badge)
-
-----------------------------------
 A restful API for generating an osm-change from geojson and osm entity using the [osm-change-generator
 ](https://github.com/MapColonies/osm-change-generator).
 
@@ -21,6 +12,11 @@ Install deps with npm
 
 ```bash
 npm install
+```
+
+### Install Git Hooks
+```bash
+npx husky install
 ```
 
 ## Run Locally

@@ -4,13 +4,13 @@ import { injectable, inject } from 'tsyringe';
 import { HttpError } from 'express-openapi-validator/dist/framework/types';
 import { Actions } from '@map-colonies/osm-change-generator';
 import { Logger } from '@map-colonies/js-logger';
-import { Services } from '../../common/constants';
+import { SERVICES } from '../../common/constants';
 import { ChangeManager } from '../models/changeManager';
 import { ChangeModel } from '../models/change';
 import { FlattenOptionalGeometry } from '../models/geojsonTypes';
 import { OsmApiElements } from '../models/helpers';
 
-type CreateResourceHandler = RequestHandler<undefined, ChangeModel, ChangeRequestBody>;
+type CreateChangeHandler = RequestHandler<undefined, ChangeModel, ChangeRequestBody>;
 
 export interface ChangeRequestBody {
   action: Actions;
@@ -21,8 +21,12 @@ export interface ChangeRequestBody {
 
 @injectable()
 export class ChangeController {
-  public constructor(@inject(Services.LOGGER) private readonly logger: Logger, @inject(ChangeManager) private readonly manager: ChangeManager) {}
-  public createResource: CreateResourceHandler = (req, res, next) => {
+  public constructor(
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(ChangeManager) private readonly manager: ChangeManager
+  ) {}
+
+  public createChange: CreateChangeHandler = (req, res, next) => {
     const { action, geojson, osmElements, externalId } = req.body;
     let change: ChangeModel;
     try {
