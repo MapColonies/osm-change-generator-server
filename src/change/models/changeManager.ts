@@ -161,7 +161,7 @@ export class ChangeManager {
       this.changeCounter.inc({ status: 'completed', externalid: externalId });
       return changeModel;
     } catch (e) {
-      // this.changeCounter.inc({ status: 'failed', externalid: externalId });
+      this.changeCounter.inc({ status: 'failed', externalid: externalId });
       this.logger.error({ err: e as Error, externalId, msg: 'failed to generate change' });
       throw e;
     }
