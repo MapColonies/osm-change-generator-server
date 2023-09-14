@@ -15,7 +15,7 @@ describe('ChangeManager', () => {
     testDataBuilder = new TestDataBuilder();
   });
   beforeEach(function () {
-    changeManager = new ChangeManager(jsLogger({ enabled: false }), new client.Registry);
+    changeManager = new ChangeManager(jsLogger({ enabled: false }), new client.Registry());
   });
   describe('#generateChange', () => {
     it.each(allFeatureTypes)('should return a create changeModel with tempOsmId for create action and %s feature', (type: FeatureType) => {
