@@ -1,10 +1,10 @@
 import { OsmChange, OsmElementType } from '@map-colonies/node-osm-elements';
 import { Actions } from '@map-colonies/osm-change-generator';
-import { FeatureType, FlattenedGeoJSON } from '../../src/change/models/geojsonTypes';
+import { FlattenedGeoJSON } from '../../src/change/models/geojsonTypes';
 import { ChangeRequestBody } from '../../src/change/controllers/changeController';
 import { getFeatureMap, OsmApiToElement, osmElementsMap } from './samples/sampleData';
 import { OSM_CHANGE_SAMPLES } from './samples/sampleOsmChanges';
-import { externalId } from './constants';
+import { ExtendedFeatureType, externalId } from './constants';
 
 interface TestData {
   request: ChangeRequestBody;
@@ -15,6 +15,7 @@ export type TestChangeRequestBody = Omit<ChangeRequestBody, 'geojson'> & { geojs
 
 export class TestDataBuilder {
   private request: Partial<TestChangeRequestBody> = {};
+  private is3d?: boolean;
 
   public constructor() {
     this.reset();
@@ -31,11 +32,16 @@ export class TestDataBuilder {
     return this;
   }
 
-  public setGeojson(geojsonType: FeatureType): TestDataBuilder {
+  public setIs3D(is3d: boolean): TestDataBuilder {
+    this.is3d = is3d;
+    return this;
+  }
+
+  public setGeojson(geojsonType: ExtendedFeatureType): TestDataBuilder {
     const geojsonSample = getFeatureMap().get(geojsonType);
     this.request.geojson = geojsonSample;
     let osmType: OsmElementType = 'way';
-    if (geojsonType === 'Point') {
+    if (geojsonType === 'Point' || geojsonType === '3DPoint') {
       osmType = 'node';
     }
     return this.setOsmElements(osmType);
@@ -60,7 +66,8 @@ export class TestDataBuilder {
   private getExpectedOsmChange(): OsmChange {
     const action = this.request.action;
     const feature = this.request.geojson?.geometry.type;
-    const data = OSM_CHANGE_SAMPLES.find((change) => change.action === action && change.feature === feature);
+    const is3d = this.is3d;
+    const data = OSM_CHANGE_SAMPLES.find((change) => change.action === action && change.feature === feature && change.is3d === is3d);
     return data?.change as OsmChange;
   }
 }

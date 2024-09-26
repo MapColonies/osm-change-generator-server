@@ -2,8 +2,7 @@ import { Actions } from '@map-colonies/osm-change-generator';
 import jsLogger from '@map-colonies/js-logger';
 import { ChangeManager } from '../../../../src/change/models/changeManager';
 import { TestDataBuilder } from '../../../common/testDataBuilder';
-import { FeatureType } from '../../../../src/change/models/geojsonTypes';
-import { allFeatureTypes, getAllFeatureCasesByAction } from '../../../common/constants';
+import { allExtendedFeatureTypesWith3D, ExtendedFeatureType, getAllFeatureCasesByAction } from '../../../common/constants';
 import { ParseOsmElementsError } from '../../../../src/change/models/errors';
 
 let changeManager: ChangeManager;
@@ -17,26 +16,29 @@ describe('ChangeManager', () => {
     changeManager = new ChangeManager(jsLogger({ enabled: false }));
   });
   describe('#generateChange', () => {
-    it.each(allFeatureTypes)('should return a create changeModel with tempOsmId for create action and %s feature', (type: FeatureType) => {
-      const action = Actions.CREATE;
-      const { request, expectedResult: expectedChangeResult } = testDataBuilder.setAction(action).setGeojson(type).getTestData();
-      const { geojson, osmElements, externalId } = request;
+    it.each(allExtendedFeatureTypesWith3D)(
+      'should return a create changeModel with tempOsmId for create action and %s feature',
+      (type: ExtendedFeatureType, is3d: boolean) => {
+        const action = Actions.CREATE;
+        const { request, expectedResult: expectedChangeResult } = testDataBuilder.setAction(action).setGeojson(type).setIs3D(is3d).getTestData();
+        const { geojson, osmElements, externalId } = request;
 
-      const result = changeManager.generateChange(request.action, geojson, osmElements, externalId);
+        const result = changeManager.generateChange(request.action, geojson, osmElements, externalId);
 
-      // osm change result
-      expect(result.change).toMatchObject(expectedChangeResult);
+        // osm change result
+        expect(result.change).toMatchObject(expectedChangeResult);
 
-      // full generated change result
-      expect(result).toHaveProperty('tempOsmId', -1);
-      expect(result).toHaveProperty('action', request.action);
-      expect(result).toHaveProperty('externalId', externalId);
-    });
+        // full generated change result
+        expect(result).toHaveProperty('tempOsmId', -1);
+        expect(result).toHaveProperty('action', request.action);
+        expect(result).toHaveProperty('externalId', externalId);
+      }
+    );
 
     it.each([...getAllFeatureCasesByAction(Actions.MODIFY), ...getAllFeatureCasesByAction(Actions.DELETE)])(
       'should call the correct get change method by %s action and %s feature',
-      (action: Actions, type: FeatureType) => {
-        const { request, expectedResult: expectedChangeResult } = testDataBuilder.setAction(action).setGeojson(type).getTestData();
+      (action: Actions, type: ExtendedFeatureType, is3d: boolean) => {
+        const { request, expectedResult: expectedChangeResult } = testDataBuilder.setAction(action).setGeojson(type).setIs3D(is3d).getTestData();
         const { geojson, osmElements, externalId } = request;
 
         const result = changeManager.generateChange(request.action, geojson, osmElements, externalId);
@@ -53,15 +55,15 @@ describe('ChangeManager', () => {
 
     it.each(getAllFeatureCasesByAction(Actions.MODIFY))(
       'should throw ParseOsmElementsError if osmElements is empty on modify action and %s feature',
-      (action: Actions, type: FeatureType) => {
-        const { request } = testDataBuilder.setAction(action).setGeojson(type).getTestData();
+      (action: Actions, type: ExtendedFeatureType, is3d: boolean) => {
+        const { request } = testDataBuilder.setAction(action).setGeojson(type).setIs3D(is3d).getTestData();
         request.osmElements = [];
         const { geojson, osmElements, externalId } = request;
 
         const generateFunction = () => changeManager.generateChange(request.action, geojson, osmElements, externalId);
         expect(generateFunction).toThrow(ParseOsmElementsError);
 
-        const elementType = type === 'Point' ? 'at least one' : 'way';
+        const elementType = type === 'Point' || type === '3DPoint' ? 'at least one' : 'way';
         const expectedMessage = `Could not parse osm-api-elements, expected ${elementType as string} element`;
         expect(generateFunction).toThrow(expectedMessage);
       }
@@ -69,8 +71,8 @@ describe('ChangeManager', () => {
 
     it.each(getAllFeatureCasesByAction(Actions.DELETE))(
       'should throw ParseOsmElementsError if osmElements is empty on delete action and %s feature',
-      (action: Actions, type: FeatureType) => {
-        const { request } = testDataBuilder.setAction(action).setGeojson(type).getTestData();
+      (action: Actions, type: ExtendedFeatureType, is3d: boolean) => {
+        const { request } = testDataBuilder.setAction(action).setGeojson(type).setIs3D(is3d).getTestData();
         request.osmElements = [];
         const { geojson, osmElements, externalId } = request;
 

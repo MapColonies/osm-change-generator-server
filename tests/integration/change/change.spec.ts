@@ -2,7 +2,7 @@ import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
 import { Actions } from '@map-colonies/osm-change-generator';
 import { registerTestValues } from '../testContainerConfig';
-import { allFeatureTypes, allFeaturesOnModifyAndDelete, getAllFeatureCasesByAction } from '../../common/constants';
+import { ExtendedFeatureType, allExtendedFeatureTypesWith3D, allFeaturesOnModifyAndDelete, getAllFeatureCasesByAction } from '../../common/constants';
 import { FeatureType, FlattenedGeoJSON } from '../../../src/change/models/geojsonTypes';
 import { ChangeModel } from '../../../src/change/models/change';
 import { ChangeRequestBody } from '../../../src/change/controllers/changeController';
@@ -25,11 +25,11 @@ describe('change', function () {
 
   describe('POST /change', function () {
     describe('Happy Path 😸', function () {
-      it.each(allFeatureTypes)(
+      it.each(allExtendedFeatureTypesWith3D)(
         'should return 201 status code and the change generated that was invoked by create action and %s feature',
-        async (feature: FeatureType) => {
+        async (feature: ExtendedFeatureType, is3d: boolean) => {
           const action = Actions.CREATE;
-          const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson(feature).getTestData();
+          const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson(feature).setIs3D(is3d).getTestData();
           const response = await requestSender.postChange(request);
 
           expect(response.status).toBe(httpStatusCodes.CREATED);
@@ -42,8 +42,8 @@ describe('change', function () {
 
       it.each(allFeaturesOnModifyAndDelete)(
         'should return 201 status code and the change generated that was invoked by %s action and %s feature',
-        async (action: Actions, feature: FeatureType) => {
-          const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson(feature).getTestData();
+        async (action: Actions, feature: ExtendedFeatureType, is3d: boolean) => {
+          const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson(feature).setIs3D(is3d).getTestData();
           const response = await requestSender.postChange(request);
 
           expect(response.status).toBe(httpStatusCodes.CREATED);
@@ -55,9 +55,9 @@ describe('change', function () {
       );
 
       it.each(getAllFeatureCasesByAction(Actions.DELETE))(
-        'should return 201 status code and the delete change generated that was invoked by delete action and %s feature with no geomerty on request',
-        async (action: Actions, feature: FeatureType) => {
-          const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson(feature).getTestData();
+        'should return 201 status code and the delete change generated that was invoked by %s action and %s feature with no geomerty on request',
+        async (action: Actions, feature: ExtendedFeatureType, is3d: boolean) => {
+          const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson(feature).setIs3D(is3d).getTestData();
           const { geometry, ...geojsonWithoutGeometry } = request.geojson;
           const response = await requestSender.postChange({ ...request, geojson: geojsonWithoutGeometry } as ChangeRequestBody);
 
@@ -69,11 +69,11 @@ describe('change', function () {
         }
       );
 
-      it.each(allFeatureTypes)(
+      it.each(allExtendedFeatureTypesWith3D)(
         'should return 201 status code on create action and %s feature when osmElements is missing on the request',
-        async (feature: FeatureType) => {
+        async (feature: ExtendedFeatureType, is3d: boolean) => {
           const action = Actions.CREATE;
-          const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson(feature).getTestData();
+          const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson(feature).setIs3D(is3d).getTestData();
           const { osmElements, ...rest } = request;
           const response = await requestSender.postChange(rest as ChangeRequestBody);
 
@@ -85,11 +85,11 @@ describe('change', function () {
         }
       );
 
-      it.each(allFeatureTypes)(
+      it.each(allExtendedFeatureTypesWith3D)(
         'should return 201 status code on create action and %s feature when osmElements is empty on the request',
-        async (feature: FeatureType) => {
+        async (feature: ExtendedFeatureType, is3d: boolean) => {
           const action = Actions.CREATE;
-          const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson(feature).getTestData();
+          const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson(feature).setIs3D(is3d).getTestData();
           request.osmElements = [];
           const response = await requestSender.postChange(request);
 
@@ -100,34 +100,6 @@ describe('change', function () {
           expect((response.body as ChangeModel).change).toMatchObject(expectedResult);
         }
       );
-
-      it('should return 201 status code on create action for a 3 coordinates node with valued z coordinate', async function () {
-        const action = Actions.CREATE;
-        const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson('Point').getTestData();
-        (request.geojson as FlattenedGeoJSON).geometry.coordinates = [18, 17, 16];
-        const { osmElements, ...rest } = request;
-        const response = await requestSender.postChange(rest as ChangeRequestBody);
-
-        expect(response.status).toBe(httpStatusCodes.CREATED);
-        expect(response.body).toHaveProperty('action', action);
-        expect(response.body).toHaveProperty('externalId', rest.externalId);
-        expect(response.body).toHaveProperty('tempOsmId', -1);
-        expect((response.body as ChangeModel).change).toMatchObject(expectedResult);
-      });
-
-      it('should return 201 status code on create action for a 3 coordinates node with z coordinate 0', async function () {
-        const action = Actions.CREATE;
-        const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson('Point').getTestData();
-        (request.geojson as FlattenedGeoJSON).geometry.coordinates = [18, 17, 0];
-        const { osmElements, ...rest } = request;
-        const response = await requestSender.postChange(rest as ChangeRequestBody);
-
-        expect(response.status).toBe(httpStatusCodes.CREATED);
-        expect(response.body).toHaveProperty('action', action);
-        expect(response.body).toHaveProperty('externalId', rest.externalId);
-        expect(response.body).toHaveProperty('tempOsmId', -1);
-        expect((response.body as ChangeModel).change).toMatchObject(expectedResult);
-      });
 
       it('should not fail if geojson geometry type is not one of the valid FeatureType on delete request', async function () {
         const request = testDataBuilder.setAction(Actions.DELETE).setGeojson('Point').getResult();
@@ -187,8 +159,8 @@ describe('change', function () {
 
       it.each([...getAllFeatureCasesByAction(Actions.CREATE), ...getAllFeatureCasesByAction(Actions.MODIFY)])(
         'should return 400 status code and error message on %s action and %s feature if geometry is missing',
-        async (action: Actions, feature: FeatureType) => {
-          const { request } = testDataBuilder.setAction(action).setGeojson(feature).getTestData();
+        async (action: Actions, feature: ExtendedFeatureType, is3d: boolean) => {
+          const { request } = testDataBuilder.setAction(action).setGeojson(feature).setIs3D(is3d).getTestData();
           const { geometry, ...geojsonWithoutGeometry } = request.geojson;
           const response = await requestSender.postChange({ ...request, geojson: geojsonWithoutGeometry } as ChangeRequestBody);
 
@@ -202,7 +174,7 @@ describe('change', function () {
     describe('Sad Path 😿', function () {
       it.each(getAllFeatureCasesByAction(Actions.MODIFY))(
         'should return 422 status code and error message indicating missing element on %s action and %s feature',
-        async (action: Actions, feature: FeatureType) => {
+        async (action: Actions, feature: ExtendedFeatureType) => {
           const request = testDataBuilder.setAction(action).setGeojson(feature).getResult();
           request.osmElements = [];
           const missingElement = (request.geojson as FlattenedGeoJSON).geometry.type === 'Point' ? 'at least one' : 'way';
@@ -215,7 +187,7 @@ describe('change', function () {
 
       it.each(getAllFeatureCasesByAction(Actions.DELETE))(
         'should return 422 status code and error message indicating missing element on %s action and %s feature',
-        async (action: Actions, feature: FeatureType) => {
+        async (action: Actions, feature: ExtendedFeatureType) => {
           const request = testDataBuilder.setAction(action).setGeojson(feature).getResult();
           request.osmElements = [];
 
