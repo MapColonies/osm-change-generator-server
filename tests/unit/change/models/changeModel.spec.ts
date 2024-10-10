@@ -6,15 +6,16 @@ import { allExtendedFeatureTypesWith3D, ExtendedFeatureType, getAllFeatureCasesB
 import { ParseOsmElementsError } from '../../../../src/change/models/errors';
 
 let changeManager: ChangeManager;
+let changeManagerWith3D: ChangeManager;
 let testDataBuilder: TestDataBuilder;
 
 describe('ChangeManager', () => {
   beforeAll(function () {
     testDataBuilder = new TestDataBuilder();
+    changeManager = new ChangeManager(jsLogger({ enabled: false }), false);
+    changeManagerWith3D = new ChangeManager(jsLogger({ enabled: false }), true);
   });
-  beforeEach(function () {
-    changeManager = new ChangeManager(jsLogger({ enabled: false }));
-  });
+
   describe('#generateChange', () => {
     it.each(allExtendedFeatureTypesWith3D)(
       'should return a create changeModel with tempOsmId for create action and %s feature',
@@ -23,7 +24,8 @@ describe('ChangeManager', () => {
         const { request, expectedResult: expectedChangeResult } = testDataBuilder.setAction(action).setGeojson(type).setIs3D(is3d).getTestData();
         const { geojson, osmElements, externalId } = request;
 
-        const result = changeManager.generateChange(request.action, geojson, osmElements, externalId);
+        const contextChangeManager: ChangeManager = is3d ? changeManagerWith3D : changeManager;
+        const result = contextChangeManager.generateChange(request.action, geojson, osmElements, externalId);
 
         // osm change result
         expect(result.change).toMatchObject(expectedChangeResult);
@@ -41,7 +43,8 @@ describe('ChangeManager', () => {
         const { request, expectedResult: expectedChangeResult } = testDataBuilder.setAction(action).setGeojson(type).setIs3D(is3d).getTestData();
         const { geojson, osmElements, externalId } = request;
 
-        const result = changeManager.generateChange(request.action, geojson, osmElements, externalId);
+        const contextChangeManager: ChangeManager = is3d ? changeManagerWith3D : changeManager;
+        const result = contextChangeManager.generateChange(request.action, geojson, osmElements, externalId);
 
         // osm change result
         expect(result.change).toMatchObject(expectedChangeResult);

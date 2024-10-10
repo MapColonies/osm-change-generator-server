@@ -23,6 +23,12 @@
       "interval": "TELEMETRY_METRICS_INTERVAL"
     }
   },
+  "app": {
+    "shouldHandle3D": {
+      "__name": "APP_SHOULD_HANDLE_3D",
+      "__format": "boolean"
+    }
+  },
   "server": {
     "port": "SERVER_PORT",
     "request": {

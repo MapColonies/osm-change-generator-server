@@ -28,10 +28,7 @@ export const allExtendedFeatureTypesWith3D = [
   ['3DPolygon', true],
 ] as [FeatureType, boolean][];
 
-export const getAllFeatureCasesByAction = (action: Actions): [Actions, ExtendedFeatureType, boolean][] =>
-  allExtendedFeatureTypesWith3D.map((pair) => [action, pair[0], pair[1]]);
-
-export const allFeaturesOnModifyAndDelete: [Actions, ExtendedFeatureType, boolean][] = [
-  ...getAllFeatureCasesByAction(Actions.MODIFY),
-  ...getAllFeatureCasesByAction(Actions.DELETE),
-];
+export const getAllFeatureCasesByAction = (action: Actions, is3d?: boolean): [Actions, ExtendedFeatureType, boolean][] =>
+  is3d === true
+    ? allExtendedFeatureTypesWith3D.map((pair) => [action, pair[0], pair[1]])
+    : allFeatureTypes.map((feature) => [action, feature, false]);
