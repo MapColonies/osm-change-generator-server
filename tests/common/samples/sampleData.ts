@@ -1,11 +1,16 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */ // used only for sample data
 import { OsmNode, OsmElementType, BaseElement, OsmWay } from '@map-colonies/node-osm-elements';
 import { FlattenedGeoJSONLine, FlattenedGeoJSONPoint, FlattenedGeoJSONPolygon } from '@map-colonies/osm-change-generator';
-import { FeatureType, FlattenedGeoJSON } from '../../../src/change/models/geojsonTypes';
+import { FlattenedGeoJSON } from '../../../src/change/models/geojsonTypes';
 import { OsmApiElements } from '../../../src/change/models/helpers';
+import { ExtendedFeatureType } from '../constants';
 
 const getPoint = (): FlattenedGeoJSONPoint => {
   return { geometry: { type: 'Point', coordinates: [18, 17] }, type: 'Feature', properties: { dog: 'meow' } };
+};
+
+const get3DPoint = (): FlattenedGeoJSONPoint => {
+  return { geometry: { type: 'Point', coordinates: [18, 17, 1.1] }, type: 'Feature', properties: { dog: 'meow' } };
 };
 
 const getLine = (): FlattenedGeoJSONLine => {
@@ -24,6 +29,22 @@ const getLine = (): FlattenedGeoJSONLine => {
   };
 };
 
+const get3DLine = (): FlattenedGeoJSONLine => {
+  return {
+    geometry: {
+      type: 'LineString',
+      coordinates: [
+        [16, 16, 1.1],
+        [17, 17, 2.2],
+        [18, 18, 3.3],
+        [19, 19, 4.4],
+      ],
+    },
+    type: 'Feature',
+    properties: { dog: 'meow' },
+  };
+};
+
 const getPolygon = (): FlattenedGeoJSONPolygon => {
   return {
     geometry: {
@@ -34,6 +55,24 @@ const getPolygon = (): FlattenedGeoJSONPolygon => {
           [17, 17],
           [18, 18],
           [16, 16],
+        ],
+      ],
+    },
+    type: 'Feature',
+    properties: { dog: 'meow' },
+  };
+};
+
+const get3DPolygon = (): FlattenedGeoJSONPolygon => {
+  return {
+    geometry: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [16, 16, 1.1],
+          [17, 17, 2.2],
+          [18, 18, 3.3],
+          [16, 16, 1.1],
         ],
       ],
     },
@@ -124,11 +163,14 @@ const osmElementsMap = new Map<OsmElementType, OsmApiToElement>([
   ['way', { apiElements: sampleOsmApiElements, element: sampleOsmWay }],
 ]);
 
-const getFeatureMap = (): Map<FeatureType, FlattenedGeoJSON> => {
-  return new Map<FeatureType, FlattenedGeoJSON>([
+const getFeatureMap = (): Map<ExtendedFeatureType, FlattenedGeoJSON> => {
+  return new Map<ExtendedFeatureType, FlattenedGeoJSON>([
     ['Point', getPoint()],
+    ['3DPoint', get3DPoint()],
     ['LineString', getLine()],
+    ['3DLineString', get3DLine()],
     ['Polygon', getPolygon()],
+    ['3DPolygon', get3DPolygon()],
   ]);
 };
 

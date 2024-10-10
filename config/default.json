@@ -11,6 +11,9 @@
       "prettyPrint": false
     }
   },
+  "app": {
+    "shouldHandle3D": false
+  },
   "server": {
     "port": "8080",
     "request": {
