@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/MapColonies/osm-change-generator-server/compare/v1.4.4...v1.5.0) (2024-10-10)
+
+
+### Features
+
+* support 3d geometries ([#77](https://github.com/MapColonies/osm-change-generator-server/issues/77)) ([b85310d](https://github.com/MapColonies/osm-change-generator-server/commit/b85310d6ef2384b720fc1e898fc3fbaa6be2fbc9))
+
 ### [1.4.4](https://github.com/MapColonies/osm-change-generator-server/compare/v1.4.3...v1.4.4) (2022-08-14)
 
 

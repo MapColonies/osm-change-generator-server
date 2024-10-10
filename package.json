@@ -1,6 +1,6 @@
 {
   "name": "osm-change-generator-server",
-  "version": "1.4.4",
+  "version": "1.5.0",
   "description": "A restful API for creating osm-change from geojson and osm entity",
   "main": "./src/index.ts",
   "scripts": {
