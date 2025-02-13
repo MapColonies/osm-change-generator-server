@@ -1,33 +1,48 @@
-import { container } from 'tsyringe';
-import config from 'config';
-import { getOtelMixin, Metrics } from '@map-colonies/telemetry';
-import { metrics } from '@opentelemetry/api-metrics';
-import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
+import { getOtelMixin } from '@map-colonies/telemetry';
 import { trace } from '@opentelemetry/api';
-import { tracing } from './common/tracing';
-import { Services, SHOULD_HANDLE_3D } from './common/constants';
+import { Registry } from 'prom-client';
+import { DependencyContainer } from 'tsyringe/dist/typings/types';
+import jsLogger from '@map-colonies/js-logger';
+import { InjectionObject, registerDependencies } from '@common/dependencyRegistration';
+import { SERVICES, SERVICE_NAME, SHOULD_HANDLE_3D } from '@common/constants';
+import { getTracing } from '@common/tracing';
+import { getConfig } from './common/config';
+import { CHANGE_ROUTER_SYMBOL, changeRouterFactory } from './change/routes/changeRouter';
 
-function registerExternalValues(): void {
-  const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
-  const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
-
-  container.register(Services.CONFIG, { useValue: config });
-  container.register(Services.LOGGER, { useValue: logger });
-  container.register(SHOULD_HANDLE_3D, { useValue: config.get<boolean>('app.shouldHandle3D') });
-
-  const otelMetrics = new Metrics();
-  otelMetrics.start();
-  container.register(Services.METER, { useValue: metrics.getMeter('osm-change-generator') });
-
-  tracing.start();
-  const tracer = trace.getTracer('osm-change-generator');
-  container.register(Services.TRACER, { useValue: tracer });
-
-  container.register('onSignal', {
-    useValue: async (): Promise<void> => {
-      await Promise.all([tracing.stop(), otelMetrics.stop()]);
-    },
-  });
+export interface RegisterOptions {
+  override?: InjectionObject<unknown>[];
+  useChild?: boolean;
 }
 
-export { registerExternalValues };
+export const registerExternalValues = async (options?: RegisterOptions): Promise<DependencyContainer> => {
+  const configInstance = getConfig();
+
+  const loggerConfig = configInstance.get('telemetry.logger');
+
+  const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
+
+  const tracer = trace.getTracer(SERVICE_NAME);
+  const metricsRegistry = new Registry();
+  configInstance.initializeMetrics(metricsRegistry);
+
+  const dependencies: InjectionObject<unknown>[] = [
+    { token: SERVICES.CONFIG, provider: { useValue: configInstance } },
+    { token: SERVICES.LOGGER, provider: { useValue: logger } },
+    { token: SERVICES.TRACER, provider: { useValue: tracer } },
+    { token: SERVICES.METRICS, provider: { useValue: metricsRegistry } },
+    { token: SHOULD_HANDLE_3D, provider: { useValue: configInstance.get('app.shouldHandle3D') } },
+    { token: CHANGE_ROUTER_SYMBOL, provider: { useFactory: changeRouterFactory } },
+    {
+      token: 'onSignal',
+      provider: {
+        useValue: {
+          useValue: async (): Promise<void> => {
+            await Promise.all([getTracing().stop()]);
+          },
+        },
+      },
+    },
+  ];
+
+  return Promise.resolve(registerDependencies(dependencies, options?.override, options?.useChild));
+};
