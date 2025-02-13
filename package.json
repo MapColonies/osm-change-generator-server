@@ -37,7 +37,7 @@
     "@map-colonies/openapi-express-viewer": "^3.0.0",
     "@map-colonies/osm-change-generator": "^1.1.0",
     "@map-colonies/read-pkg": "0.0.1",
-    "@map-colonies/schemas": "https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-fa2633453b32618ba55026043600b786aaf61841.tgz",
+    "@map-colonies/schemas": "https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-97f94a280c0cd2f5b5e9cfb7f9a65eff49ff0255.tgz",
     "@map-colonies/telemetry": "^7.0.1",
     "@opentelemetry/api": "^1.7.0",
     "compression": "^1.7.4",
