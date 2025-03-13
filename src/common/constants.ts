@@ -12,7 +12,9 @@ export const SERVICES = {
   CONFIG: Symbol('Config'),
   TRACER: Symbol('Tracer'),
   METRICS: Symbol('Metrics'),
+  CLEANUP_REGISTRY: Symbol('CleanupRegistry'),
 } satisfies Record<string, symbol>;
 /* eslint-enable @typescript-eslint/naming-convention */
 
+export const ON_SIGNAL = Symbol('onSignal');
 export const SHOULD_HANDLE_3D = Symbol('should_handle_3d');

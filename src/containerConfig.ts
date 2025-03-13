@@ -1,12 +1,13 @@
 import { getOtelMixin } from '@map-colonies/telemetry';
 import { trace } from '@opentelemetry/api';
 import { Registry } from 'prom-client';
-import { DependencyContainer } from 'tsyringe/dist/typings/types';
-import jsLogger from '@map-colonies/js-logger';
+import jsLogger, { Logger } from '@map-colonies/js-logger';
 import { InjectionObject, registerDependencies } from '@common/dependencyRegistration';
-import { SERVICES, SERVICE_NAME, SHOULD_HANDLE_3D } from '@common/constants';
 import { getTracing } from '@common/tracing';
-import { getConfig } from './common/config';
+import { ConfigType, getConfig } from '@common/config';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
+import { DependencyContainer, instancePerContainerCachingFactory } from 'tsyringe';
+import { ON_SIGNAL, SERVICES, SERVICE_NAME, SHOULD_HANDLE_3D } from '@common/constants';
 import { CHANGE_ROUTER_SYMBOL, changeRouterFactory } from './change/routes/changeRouter';
 
 export interface RegisterOptions {
@@ -15,34 +16,79 @@ export interface RegisterOptions {
 }
 
 export const registerExternalValues = async (options?: RegisterOptions): Promise<DependencyContainer> => {
-  const configInstance = getConfig();
+  const cleanupRegistry = new CleanupRegistry();
 
-  const loggerConfig = configInstance.get('telemetry.logger');
+  try {
+    const dependencies: InjectionObject<unknown>[] = [
+      { token: SERVICES.CONFIG, provider: { useValue: getConfig() } },
+      {
+        token: SERVICES.CLEANUP_REGISTRY,
+        provider: { useValue: cleanupRegistry },
+        afterAllInjectionHook(container): void {
+          const logger = container.resolve<Logger>(SERVICES.LOGGER);
+          const cleanupRegistryLogger = logger.child({ subComponent: 'cleanupRegistry' });
 
-  const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
-
-  const tracer = trace.getTracer(SERVICE_NAME);
-  const metricsRegistry = new Registry();
-  configInstance.initializeMetrics(metricsRegistry);
-
-  const dependencies: InjectionObject<unknown>[] = [
-    { token: SERVICES.CONFIG, provider: { useValue: configInstance } },
-    { token: SERVICES.LOGGER, provider: { useValue: logger } },
-    { token: SERVICES.TRACER, provider: { useValue: tracer } },
-    { token: SERVICES.METRICS, provider: { useValue: metricsRegistry } },
-    { token: SHOULD_HANDLE_3D, provider: { useValue: configInstance.get('app.shouldHandle3D') } },
-    { token: CHANGE_ROUTER_SYMBOL, provider: { useFactory: changeRouterFactory } },
-    {
-      token: 'onSignal',
-      provider: {
-        useValue: {
-          useValue: async (): Promise<void> => {
-            await Promise.all([getTracing().stop()]);
-          },
+          cleanupRegistry.on('itemFailed', (id, error, msg) => cleanupRegistryLogger.error({ msg, itemId: id, err: error }));
+          cleanupRegistry.on('itemCompleted', (id) => cleanupRegistryLogger.info({ itemId: id, msg: 'cleanup finished for item' }));
+          cleanupRegistry.on('finished', (status) => cleanupRegistryLogger.info({ msg: `cleanup registry finished cleanup`, status }));
         },
       },
-    },
-  ];
+      {
+        token: SERVICES.LOGGER,
+        provider: {
+          useFactory: instancePerContainerCachingFactory((container) => {
+            const config = container.resolve<ConfigType>(SERVICES.CONFIG);
+            const loggerConfig = config.get('telemetry.logger');
+            const logger = jsLogger({ ...loggerConfig, mixin: getOtelMixin() });
+            return logger;
+          }),
+        },
+      },
+      {
+        token: SERVICES.TRACER,
+        provider: {
+          useFactory: instancePerContainerCachingFactory((container) => {
+            const cleanupRegistry = container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+            cleanupRegistry.register({ id: SERVICES.TRACER, func: getTracing().stop.bind(getTracing()) });
+            const tracer = trace.getTracer(SERVICE_NAME);
+            return tracer;
+          }),
+        },
+      },
+      {
+        token: SERVICES.METRICS,
+        provider: {
+          useFactory: instancePerContainerCachingFactory((container) => {
+            const metricsRegistry = new Registry();
+            const config = container.resolve<ConfigType>(SERVICES.CONFIG);
+            config.initializeMetrics(metricsRegistry);
+            return metricsRegistry;
+          }),
+        },
+      },
+      {
+        token: SHOULD_HANDLE_3D,
+        provider: {
+          useFactory: instancePerContainerCachingFactory((container) => {
+            const config = container.resolve<ConfigType>(SERVICES.CONFIG);
+            const shouldHandle3D = config.get('app.shouldHandle3D');
+            return shouldHandle3D;
+          }),
+        },
+      },
+      { token: CHANGE_ROUTER_SYMBOL, provider: { useFactory: changeRouterFactory } },
+      {
+        token: ON_SIGNAL,
+        provider: {
+          useValue: cleanupRegistry.trigger.bind(cleanupRegistry),
+        },
+      },
+    ];
 
-  return Promise.resolve(registerDependencies(dependencies, options?.override, options?.useChild));
+    const container = await registerDependencies(dependencies, options?.override, options?.useChild);
+    return container;
+  } catch (error) {
+    await cleanupRegistry.trigger();
+    throw error;
+  }
 };
