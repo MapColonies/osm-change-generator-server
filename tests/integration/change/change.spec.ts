@@ -1,21 +1,39 @@
 import httpStatusCodes from 'http-status-codes';
-import { container } from 'tsyringe';
+import { DependencyContainer } from 'tsyringe';
 import { Actions } from '@map-colonies/osm-change-generator';
-import { registerTestValues } from '../testContainerConfig';
-import { ExtendedFeatureType, allExtendedFeatureTypesWith3D, allFeatureTypes, getAllFeatureCasesByAction } from '../../common/constants';
-import { FeatureType, FlattenedGeoJSON } from '../../../src/change/models/geojsonTypes';
-import { ChangeModel } from '../../../src/change/models/change';
-import { ChangeRequestBody } from '../../../src/change/controllers/changeController';
-import { TestDataBuilder } from '../../common/testDataBuilder';
-import * as requestSender from './helpers/requestSender';
-
-let testDataBuilder: TestDataBuilder;
+import { ChangeRequestBody } from '@src/change/controllers/changeController';
+import { type FeatureType, type FlattenedGeoJSON } from '@src/change/models/geojsonTypes';
+import { ChangeModel } from '@src/change/models/change';
+import { TestDataBuilder } from '@tests/common/testDataBuilder';
+import { ExtendedFeatureType, allExtendedFeatureTypesWith3D, allFeatureTypes, getAllFeatureCasesByAction } from '@tests/common/constants';
+import { getApp } from '@src/app';
+import { SERVICES, SHOULD_HANDLE_3D } from '@src/common/constants';
+import jsLogger from '@map-colonies/js-logger';
+import { trace } from '@opentelemetry/api';
+import { initConfig } from '@src/common/config';
+import { DocsRequestSender } from './helpers/changeRequestSender';
 
 describe('changeWithout3D', function () {
-  beforeAll(function () {
-    registerTestValues(false);
-    requestSender.init();
+  let testDataBuilder: TestDataBuilder;
+  let requestSender: DocsRequestSender;
+  let container: DependencyContainer;
+  beforeAll(async function () {
+    await initConfig(true);
+    const [initializedApp, initializedContainer] = await getApp({
+      override: [
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
+        {
+          token: SHOULD_HANDLE_3D,
+          provider: { useValue: false },
+        },
+      ],
+      useChild: true,
+    });
+
+    requestSender = new DocsRequestSender(initializedApp);
     testDataBuilder = new TestDataBuilder();
+    container = initializedContainer;
   });
 
   afterEach(function () {
@@ -143,7 +161,7 @@ describe('changeWithout3D', function () {
         const message = (response.body as { message: string }).message;
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(message).toContain('geojson.geometry.coordinates should NOT have fewer than 2 items');
+        expect(message).toContain('geojson/geometry/coordinates must NOT have fewer than 2 items');
       });
 
       it('should return 400 if point geojson geometry coordinates has more coordinates than 3', async function () {
@@ -154,7 +172,7 @@ describe('changeWithout3D', function () {
         const message = (response.body as { message: string }).message;
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(message).toContain('geojson.geometry.coordinates should NOT have more than 3 items');
+        expect(message).toContain('geojson/geometry/coordinates must NOT have more than 3 items');
       });
 
       it.each([...getAllFeatureCasesByAction(Actions.CREATE), ...getAllFeatureCasesByAction(Actions.MODIFY)])(
@@ -166,7 +184,7 @@ describe('changeWithout3D', function () {
 
           expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
           const message = (response.body as { message: string }).message;
-          expect(message).toContain("geojson should have required property 'geometry'");
+          expect(message).toContain("geojson must have required property 'geometry'");
         }
       );
     });
@@ -215,9 +233,27 @@ describe('changeWithout3D', function () {
 });
 
 describe('changeWith3D', function () {
-  beforeAll(function () {
-    registerTestValues(true);
-    requestSender.init();
+  let testDataBuilder: TestDataBuilder;
+  let requestSender: DocsRequestSender;
+  let container: DependencyContainer;
+  beforeAll(async function () {
+    await initConfig(true);
+    const [initializedApp, initializedContainer] = await getApp({
+      override: [
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
+        {
+          token: SHOULD_HANDLE_3D,
+          provider: { useValue: true },
+        },
+      ],
+      useChild: true,
+    });
+
+    requestSender = new DocsRequestSender(initializedApp);
+    testDataBuilder = new TestDataBuilder();
+    container = initializedContainer;
+
     testDataBuilder = new TestDataBuilder();
   });
 
@@ -346,7 +382,7 @@ describe('changeWith3D', function () {
         const message = (response.body as { message: string }).message;
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(message).toContain('geojson.geometry.coordinates should NOT have fewer than 2 items');
+        expect(message).toContain('geojson/geometry/coordinates must NOT have fewer than 2 items');
       });
 
       it('should return 400 if point geojson geometry coordinates has more coordinates than 3', async function () {
@@ -357,7 +393,7 @@ describe('changeWith3D', function () {
         const message = (response.body as { message: string }).message;
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(message).toContain('geojson.geometry.coordinates should NOT have more than 3 items');
+        expect(message).toContain('geojson/geometry/coordinates must NOT have more than 3 items');
       });
 
       it.each([...getAllFeatureCasesByAction(Actions.CREATE), ...getAllFeatureCasesByAction(Actions.MODIFY)])(
@@ -369,7 +405,7 @@ describe('changeWith3D', function () {
 
           expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
           const message = (response.body as { message: string }).message;
-          expect(message).toContain("geojson should have required property 'geometry'");
+          expect(message).toContain("geojson must have required property 'geometry'");
         }
       );
     });

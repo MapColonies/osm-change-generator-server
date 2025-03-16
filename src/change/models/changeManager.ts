@@ -10,7 +10,7 @@ import {
 } from '@map-colonies/osm-change-generator';
 import { parseOsmWayApi, BaseElement, OsmNode, OsmWay, OsmChange, OsmElementType, OsmApiWay } from '@map-colonies/node-osm-elements';
 import { Logger } from '@map-colonies/js-logger';
-import { Services, SHOULD_HANDLE_3D } from '../../common/constants';
+import { SERVICES, SHOULD_HANDLE_3D } from '../../common/constants';
 import { validateArrayHasElements } from '../../common/util';
 import { ChangeModel } from './change';
 import { OsmApiElements } from './helpers';
@@ -126,7 +126,7 @@ export const throwParseOsmElementsError = (elementType?: OsmElementType): never 
 @injectable()
 export class ChangeManager {
   public constructor(
-    @inject(Services.LOGGER) private readonly logger: Logger,
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(SHOULD_HANDLE_3D) private readonly shouldHandle3D: boolean
   ) {}
 

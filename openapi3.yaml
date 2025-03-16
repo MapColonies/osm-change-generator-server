@@ -8,9 +8,11 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
+security: []
 paths:
   /change:
     post:
+      operationId: PostGeneratesOSMChange
       summary: Generates an osm-change based on external geojson and osm entity
       tags:
         - change
@@ -85,9 +87,8 @@ components:
         id:
           type: integer
           format: int64
-          minimum: 0
+          minimum: 1
           example: 666
-          exclusiveMinimum: true
         timestamp:
           type: string
         version:
@@ -347,6 +348,5 @@ components:
             tempOsmId:
               type: integer
               format: int64
-              maximum: 0
+              maximum: 1
               example: -666
-              exclusiveMaximum: true
