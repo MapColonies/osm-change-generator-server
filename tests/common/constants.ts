@@ -6,11 +6,11 @@ export type ExtendedFeatureType = FeatureType | '3DPoint' | '3DLineString' | '3D
 
 export const externalId = 'some_external_id';
 
-export const allActions: Readonly<Actions[]> = [Actions.CREATE, Actions.MODIFY, Actions.DELETE] as const;
+export const allActions: readonly Actions[] = [Actions.CREATE, Actions.MODIFY, Actions.DELETE] as const;
 
-export const allFeatureTypes: Readonly<FeatureType[]> = ['Point', 'LineString', 'Polygon'] as const;
+export const allFeatureTypes: readonly FeatureType[] = ['Point', 'LineString', 'Polygon'] as const;
 
-export const allExtendedFeatureTypes: Readonly<ExtendedFeatureType[]> = [
+export const allExtendedFeatureTypes: readonly ExtendedFeatureType[] = [
   'Point',
   'LineString',
   'Polygon',

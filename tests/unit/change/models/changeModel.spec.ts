@@ -1,11 +1,10 @@
-import config from 'config';
 import { Actions } from '@map-colonies/osm-change-generator';
 import jsLogger from '@map-colonies/js-logger';
+import { configMock } from '@tests/common/helpers';
 import { ChangeManager } from '../../../../src/change/models/changeManager';
 import { TestDataBuilder } from '../../../common/testDataBuilder';
 import { allExtendedFeatureTypesWith3D, ExtendedFeatureType, getAllFeatureCasesByAction } from '../../../common/constants';
 import { ParseOsmElementsError } from '../../../../src/change/models/errors';
-import { IApp } from '../../../../src/common/interfaces';
 
 let changeManager: ChangeManager;
 let changeManagerWithLOD2: ChangeManager;
@@ -13,21 +12,18 @@ let testDataBuilder: TestDataBuilder;
 
 describe('ChangeManager', () => {
   beforeAll(function () {
-    testDataBuilder = new TestDataBuilder();
-    const configMock = (appConfig: IApp) => ({
-      get: jest.fn().mockImplementation((key: string) => {
-        switch (key) {
-          case 'app':
-            return appConfig;
-          default:
-            return config.get<unknown>(key);
-        }
-      }),
-      has: jest.fn(),
-    });
-
     changeManager = new ChangeManager(jsLogger({ enabled: false }), configMock({ shouldHandleLOD2: false }));
     changeManagerWithLOD2 = new ChangeManager(jsLogger({ enabled: false }), configMock({ shouldHandleLOD2: true }));
+
+    testDataBuilder = new TestDataBuilder();
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    testDataBuilder.reset();
   });
 
   describe('#generateChange', () => {

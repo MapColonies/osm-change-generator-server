@@ -1,55 +1,101 @@
 global:
   cloudProvider: {}
-  environment: {}
   tracing: {}
   metrics: {}
+  environment: ''
 
 enabled: true
 environment: development
 replicaCount: 1
-initialDelaySeconds: 60
+revisionHistoryLimit: 5 # Amount of revisions we keep
+nodePort: 30030 #for minikube deployment only
+resetOnConfigChange: false
 
-annotations: {}
+nameOverride: ""
+fullnameOverride: ""
+
+configManagement:
+  offlineMode: false
+  name: 'service-name'
+  version: 'latest'
+  serverUrl: 'http://localhost:8080/api'
+
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  path: /liveness
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  path: /liveness
+
 podAnnotations: {}
 
+extraVolumes: []
+
+extraVolumeMounts: []
+
+extraEnvVars: []
+
+command: []
+args: []
+# command: [ "/bin/sh", "-c", "--" ]
+# args: [ "while true; do sleep infinity; done;" ]
+
+sidecars: []
+
 cloudProvider:
-  flavor: "openshift"
-  dockerRegistryUrl: 'my-registry.io'
+  dockerRegistryUrl:
+  imagePullSecretName: ''
+  flavor: openshift
+
+caSecretName: ''
+caPath: '/usr/local/share/ca-certificates'
+caKey: 'ca.crt'
 
 image:
   repository: osm-change-generator-server
+  # If commented, appVersion will be taken. See: _helpers.tpl
   # tag: 'latest'
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 env:
   port: 8080
   targetPort: 8080
   protocol: TCP
   logLevel: info
-  requestPayloadLimit: 1mb
+  logPrettyPrintEnabled: false
   responseCompressionEnabled: true
-  shouldHandleLOD2: false
-  shouldHandlePrecision: false
+  requestPayloadLimit: 1mb
   tracing:
     enabled: false
     url: http://localhost:55681/v1/trace
-    ratio: 1
   metrics:
     enabled: false
     url: http://localhost:55681/v1/metrics
+  app:
+    shouldHandleLOD2: false
+    shouldHandlePrecision: false
 
-resources:
-  enabled: false
-  value:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
 
 route:
   enabled: true
-  tls:
-    termination: edge
   path: /
+  host:
+  timeout:
+    enabled: false # defaults to 30s by openshift
+    duration: 60s # supported units (us, ms, s, m, h, d)
+  rewriteTarget: ''
+  tls:
+    enabled: true
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+    useCerts: false
+    certificate: ''
+    key: ''
+    caCertificate: ''

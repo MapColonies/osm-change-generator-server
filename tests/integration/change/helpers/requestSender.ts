@@ -1,16 +1,11 @@
-import * as supertest from 'supertest';
-import { Application } from 'express';
-import { container } from 'tsyringe';
-import { ServerBuilder } from '../../../../src/serverBuilder';
+import type { Application } from 'express';
+import { type Response, agent } from 'supertest';
 import { ChangeRequestBody } from '../../../../src/change/controllers/changeController';
 
-let app: Application | null = null;
+export class ChangeRequestSender {
+  public constructor(private readonly app: Application) {}
 
-export function init(): void {
-  const builder = container.resolve<ServerBuilder>(ServerBuilder);
-  app = builder.build();
-}
-
-export async function postChange(body: ChangeRequestBody): Promise<supertest.Response> {
-  return supertest.agent(app).post('/change').set('Content-Type', 'application/json').send(body);
+  public async postChange(body: ChangeRequestBody): Promise<Response> {
+    return agent(this.app).post('/change').set('Content-Type', 'application/json').send(body);
+  }
 }

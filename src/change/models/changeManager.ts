@@ -10,15 +10,15 @@ import {
   GetChangeOptions,
 } from '@map-colonies/osm-change-generator';
 import { parseOsmWayApi, BaseElement, OsmNode, OsmWay, OsmChange, OsmElementType, OsmApiWay } from '@map-colonies/node-osm-elements';
-import { Logger } from '@map-colonies/js-logger';
-import { Services } from '../../common/constants';
+import type { Logger } from '@map-colonies/js-logger';
+import type { ConfigType } from '@src/common/config';
+import { SERVICES } from '../../common/constants';
 import { validateArrayHasElements } from '../../common/util';
-import { IApp, IConfig } from '../../common/interfaces';
+import { IApp } from '../../common/interfaces';
 import { ChangeModel } from './change';
-import { OsmApiElements } from './helpers';
+import { OsmApiElements, isNode, isWay } from './helpers';
 import { FlattenedGeoJSON, FlattenOptionalGeometry } from './geojsonTypes';
 import { ParseOsmElementsError } from './errors';
-import { isNode, isWay } from './helpers';
 
 type GenerateOsmChangeArgs =
   | { action: Actions.DELETE; osmElements: OsmApiElements }
@@ -92,7 +92,7 @@ export const getNodeFromElements = (elements: OsmApiElements): OsmNode => {
   if (!validateArrayHasElements(elements)) {
     return throwParseOsmElementsError();
   }
-  const node: OsmNode | OsmApiWay = elements[0];
+  const node: OsmNode | OsmApiWay = elements[0]!;
   if (!isNode(node)) {
     return throwParseOsmElementsError('node');
   }
@@ -114,14 +114,14 @@ export const getOsmWayFromElements = (elements: OsmApiElements): OsmWay => {
  */
 export const getTempOsmId = (elements: BaseElement[]): number => {
   if (elements.length === 1) {
-    return elements[0].id;
+    return elements[0]!.id;
   }
   const way = elements.find(isWay);
   return (way as OsmWay).id;
 };
 
 export const throwParseOsmElementsError = (elementType?: OsmElementType): never => {
-  const elaborativeExpected = elementType ? elementType : 'at least one';
+  const elaborativeExpected = elementType ?? 'at least one';
   throw new ParseOsmElementsError(`Could not parse osm-api-elements, expected ${elaborativeExpected} element`);
 };
 
@@ -130,10 +130,10 @@ export class ChangeManager {
   private readonly options?: GetChangeOptions;
 
   public constructor(
-    @inject(Services.LOGGER) private readonly logger: Logger,
-    @inject(Services.CONFIG) private readonly config: IConfig
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(SERVICES.CONFIG) private readonly config: ConfigType
   ) {
-    const { shouldHandleLOD2, shouldHandlePrecision } = this.config.get<IApp>('app');
+    const { shouldHandleLOD2, shouldHandlePrecision } = this.config.get('app') as IApp;
     this.options = { shouldHandleLOD2, shouldHandlePrecision };
   }
 
