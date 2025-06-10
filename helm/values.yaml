@@ -28,7 +28,8 @@ env:
   logLevel: info
   requestPayloadLimit: 1mb
   responseCompressionEnabled: true
-  shouldHandle3D: false
+  shouldHandleLOD2: false
+  shouldHandlePrecision: false
   tracing:
     enabled: false
     url: http://localhost:55681/v1/trace

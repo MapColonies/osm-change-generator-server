@@ -12,7 +12,8 @@
     }
   },
   "app": {
-    "shouldHandle3D": false
+    "shouldHandleLOD2": false,
+    "shouldHandlePrecision": false
   },
   "server": {
     "port": "8080",

@@ -5,7 +5,7 @@ import { metrics } from '@opentelemetry/api-metrics';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import { tracing } from './common/tracing';
-import { Services, SHOULD_HANDLE_3D } from './common/constants';
+import { Services } from './common/constants';
 
 function registerExternalValues(): void {
   const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
@@ -13,7 +13,6 @@ function registerExternalValues(): void {
 
   container.register(Services.CONFIG, { useValue: config });
   container.register(Services.LOGGER, { useValue: logger });
-  container.register(SHOULD_HANDLE_3D, { useValue: config.get<boolean>('app.shouldHandle3D') });
 
   const otelMetrics = new Metrics();
   otelMetrics.start();

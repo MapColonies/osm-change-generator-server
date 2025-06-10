@@ -1,3 +1,5 @@
+import { GetChangeOptions } from '@map-colonies/osm-change-generator';
+
 export interface IServerConfig {
   port: string;
 }
@@ -13,3 +15,5 @@ export interface OpenApiConfig {
   jsonPath: string;
   uiPath: string;
 }
+
+export interface IApp extends GetChangeOptions {}

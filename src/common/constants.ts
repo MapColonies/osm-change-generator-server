@@ -9,5 +9,3 @@ export enum Services {
   TRACER = 'TRACER',
   METER = 'METER',
 }
-
-export const SHOULD_HANDLE_3D = Symbol('should_handle_3d');

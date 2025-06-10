@@ -13,14 +13,17 @@ let testDataBuilder: TestDataBuilder;
 
 describe('changeWithout3D', function () {
   beforeAll(function () {
-    registerTestValues(false);
+    registerTestValues({ shouldHandleLOD2: true });
     requestSender.init();
     testDataBuilder = new TestDataBuilder();
   });
 
   afterEach(function () {
-    container.clearInstances();
     testDataBuilder.reset();
+  });
+
+  afterAll(function () {
+    container.reset();
   });
 
   describe('POST /change', function () {
@@ -216,14 +219,17 @@ describe('changeWithout3D', function () {
 
 describe('changeWith3D', function () {
   beforeAll(function () {
-    registerTestValues(true);
+    registerTestValues({ shouldHandleLOD2: true });
     requestSender.init();
     testDataBuilder = new TestDataBuilder();
   });
 
   afterEach(function () {
-    container.clearInstances();
     testDataBuilder.reset();
+  });
+
+  afterAll(function () {
+    container.reset();
   });
 
   describe('POST /change', function () {

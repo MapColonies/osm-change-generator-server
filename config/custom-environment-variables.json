@@ -24,8 +24,12 @@
     }
   },
   "app": {
-    "shouldHandle3D": {
-      "__name": "APP_SHOULD_HANDLE_3D",
+    "shouldHandleLOD2": {
+      "__name": "APP_SHOULD_HANDLE_LOD2",
+      "__format": "boolean"
+    },
+    "shouldHandlePrecision": {
+      "__name": "APP_SHOULD_HANDLE_PRECISION",
       "__format": "boolean"
     }
   },

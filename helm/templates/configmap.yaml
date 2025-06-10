@@ -20,9 +20,14 @@ data:
   TELEMETRY_METRICS_ENABLED: 'true'
   TELEMETRY_METRICS_URL: {{ $metricsUrl }}
   {{ end }}
-  {{- if .Values.env.shouldHandle3D }}
-  APP_SHOULD_HANDLE_3D: 'true'
+  {{- if .Values.env.shouldHandleLOD2 }}
+  APP_SHOULD_HANDLE_LOD2: 'true'
   {{- else }}
-  APP_SHOULD_HANDLE_3D: 'false'
+  APP_SHOULD_HANDLE_LOD2: 'false'
+  {{- end }}
+  {{- if .Values.env.shouldHandlePrecision }}
+  APP_SHOULD_HANDLE_PRECISION: 'true'
+  {{- else }}
+  APP_SHOULD_HANDLE_PRECISION: 'false'
   {{- end }}
 {{- end }}
