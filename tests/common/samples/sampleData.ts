@@ -174,4 +174,4 @@ const getFeatureMap = (): Map<ExtendedFeatureType, FlattenedGeoJSON> => {
   ]);
 };
 
-export { OsmApiToElement, osmElementsMap, getFeatureMap };
+export { type OsmApiToElement, osmElementsMap, getFeatureMap };

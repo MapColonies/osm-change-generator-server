@@ -6,16 +6,22 @@
     "uiPath": "/api"
   },
   "telemetry": {
+    "metrics": {},
+    "tracing": {
+      "isEnabled": false
+    },
+    "shared": {},
     "logger": {
       "level": "info",
       "prettyPrint": false
     }
   },
   "app": {
-    "shouldHandle3D": false
+    "shouldHandleLOD2": false,
+    "shouldHandlePrecision": false
   },
   "server": {
-    "port": "8080",
+    "port": 8080,
     "request": {
       "payload": {
         "limit": "1mb"

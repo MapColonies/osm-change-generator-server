@@ -11,6 +11,7 @@ info:
 paths:
   /change:
     post:
+      operationId: postChange
       summary: Generates an osm-change based on external geojson and osm entity
       tags:
         - change
@@ -42,6 +43,8 @@ paths:
           $ref: '#/components/responses/UnprocessableEntity'
         5XX:
           $ref: '#/components/responses/UnexpectedError'
+security:
+  - {}
 components:
   responses:
     BadRequest:
@@ -70,6 +73,11 @@ components:
       properties:
         message:
           type: string
+    tempOsmId:
+      type: integer
+      format: int64
+      maximum: -1
+      example: -666
     BaseOsmElement:
       type: object
       required:
@@ -85,9 +93,8 @@ components:
         id:
           type: integer
           format: int64
-          minimum: 0
+          minimum: 1
           example: 666
-          exclusiveMinimum: true
         timestamp:
           type: string
         version:
@@ -345,8 +352,4 @@ components:
             change:
               $ref: '#/components/schemas/OsmChange'
             tempOsmId:
-              type: integer
-              format: int64
-              maximum: 0
-              example: -666
-              exclusiveMaximum: true
+              $ref: '#/components/schemas/tempOsmId'

@@ -3,8 +3,8 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { HttpError } from 'express-openapi-validator/dist/framework/types';
 import { Actions } from '@map-colonies/osm-change-generator';
-import { Logger } from '@map-colonies/js-logger';
-import { Services } from '../../common/constants';
+import type { Logger } from '@map-colonies/js-logger';
+import { SERVICES } from '../../common/constants';
 import { ChangeManager } from '../models/changeManager';
 import { ChangeModel } from '../models/change';
 import { FlattenOptionalGeometry } from '../models/geojsonTypes';
@@ -22,7 +22,7 @@ export interface ChangeRequestBody {
 @injectable()
 export class ChangeController {
   public constructor(
-    @inject(Services.LOGGER) private readonly logger: Logger,
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(ChangeManager) private readonly manager: ChangeManager
   ) {}
   public createResource: CreateResourceHandler = (req, res, next) => {

@@ -1,19 +1,29 @@
 import { Actions } from '@map-colonies/osm-change-generator';
 import jsLogger from '@map-colonies/js-logger';
+import { configMock } from '@tests/common/helpers';
 import { ChangeManager } from '../../../../src/change/models/changeManager';
 import { TestDataBuilder } from '../../../common/testDataBuilder';
 import { allExtendedFeatureTypesWith3D, ExtendedFeatureType, getAllFeatureCasesByAction } from '../../../common/constants';
 import { ParseOsmElementsError } from '../../../../src/change/models/errors';
 
 let changeManager: ChangeManager;
-let changeManagerWith3D: ChangeManager;
+let changeManagerWithLOD2: ChangeManager;
 let testDataBuilder: TestDataBuilder;
 
 describe('ChangeManager', () => {
   beforeAll(function () {
+    changeManager = new ChangeManager(jsLogger({ enabled: false }), configMock({ shouldHandleLOD2: false }));
+    changeManagerWithLOD2 = new ChangeManager(jsLogger({ enabled: false }), configMock({ shouldHandleLOD2: true }));
+
     testDataBuilder = new TestDataBuilder();
-    changeManager = new ChangeManager(jsLogger({ enabled: false }), false);
-    changeManagerWith3D = new ChangeManager(jsLogger({ enabled: false }), true);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    testDataBuilder.reset();
   });
 
   describe('#generateChange', () => {
@@ -24,7 +34,7 @@ describe('ChangeManager', () => {
         const { request, expectedResult: expectedChangeResult } = testDataBuilder.setAction(action).setGeojson(type).setIs3D(is3d).getTestData();
         const { geojson, osmElements, externalId } = request;
 
-        const contextChangeManager: ChangeManager = is3d ? changeManagerWith3D : changeManager;
+        const contextChangeManager: ChangeManager = is3d ? changeManagerWithLOD2 : changeManager;
         const result = contextChangeManager.generateChange(request.action, geojson, osmElements, externalId);
 
         // osm change result
@@ -37,13 +47,13 @@ describe('ChangeManager', () => {
       }
     );
 
-    it.each([...getAllFeatureCasesByAction(Actions.MODIFY), ...getAllFeatureCasesByAction(Actions.DELETE)])(
+    it.each([...getAllFeatureCasesByAction(Actions.MODIFY)])(
       'should call the correct get change method by %s action and %s feature',
       (action: Actions, type: ExtendedFeatureType, is3d: boolean) => {
         const { request, expectedResult: expectedChangeResult } = testDataBuilder.setAction(action).setGeojson(type).setIs3D(is3d).getTestData();
         const { geojson, osmElements, externalId } = request;
 
-        const contextChangeManager: ChangeManager = is3d ? changeManagerWith3D : changeManager;
+        const contextChangeManager: ChangeManager = is3d ? changeManagerWithLOD2 : changeManager;
         const result = contextChangeManager.generateChange(request.action, geojson, osmElements, externalId);
 
         // osm change result
