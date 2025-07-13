@@ -4,7 +4,7 @@ info:
   description: >-
     A restful API for generating osm-change based on the diff between geojson
     and osm entity
-  version: 1.5.0
+  version: 1.6.0
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
