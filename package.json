@@ -36,7 +36,7 @@
     "@map-colonies/js-logger": "^2.0.0",
     "@map-colonies/node-osm-elements": "^2.1.2",
     "@map-colonies/openapi-express-viewer": "^4.0.0",
-    "@map-colonies/osm-change-generator": "^2.0.0-rc1",
+    "@map-colonies/osm-change-generator": "^2.0.0",
     "@map-colonies/telemetry": "^10.0.1",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/api-metrics": "^0.29.0",

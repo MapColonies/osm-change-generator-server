@@ -14,3 +14,5 @@ export const SERVICES = {
   METRICS: Symbol('METRICS'),
 } satisfies Record<string, symbol>;
 /* eslint-enable @typescript-eslint/naming-convention */
+
+export const ON_SIGNAL: symbol = Symbol('onSignal');

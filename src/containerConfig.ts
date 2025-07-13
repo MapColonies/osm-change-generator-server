@@ -4,7 +4,7 @@ import { Registry } from 'prom-client';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import jsLogger from '@map-colonies/js-logger';
 import { InjectionObject, registerDependencies } from '@common/dependencyRegistration';
-import { SERVICES, SERVICE_NAME } from '@common/constants';
+import { ON_SIGNAL, SERVICES, SERVICE_NAME } from '@common/constants';
 import { getTracing } from '@common/tracing';
 import { CHANGE_ROUTER_SYMBOL, changeRouterFactory } from './change/routes/changeRouter';
 import { getConfig } from './common/config';
@@ -32,7 +32,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: SERVICES.METRICS, provider: { useValue: metricsRegistry } },
     { token: CHANGE_ROUTER_SYMBOL, provider: { useFactory: changeRouterFactory } },
     {
-      token: 'onSignal',
+      token: ON_SIGNAL,
       provider: {
         useValue: {
           useValue: async (): Promise<void> => {
