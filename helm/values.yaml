@@ -81,6 +81,12 @@ env:
   app:
     shouldHandleLOD2: false
     shouldHandlePrecision: false
+    maxTagKeyLength:
+      enabled: false
+      # value: 255
+    maxTagValueLength:
+      enabled: false
+      # value: 255
 
 
 route:
