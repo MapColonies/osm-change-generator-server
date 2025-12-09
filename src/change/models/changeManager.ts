@@ -133,8 +133,8 @@ export class ChangeManager {
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(SERVICES.CONFIG) private readonly config: ConfigType
   ) {
-    const { shouldHandleLOD2, shouldHandlePrecision } = this.config.get('app') as IApp;
-    this.options = { shouldHandleLOD2, shouldHandlePrecision };
+    const { shouldHandleLOD2, shouldHandlePrecision, maxTagKeyLength, maxTagValueLength } = this.config.get('app') as IApp;
+    this.options = { shouldHandleLOD2, shouldHandlePrecision, maxTagKeyLength, maxTagValueLength };
   }
 
   public generateChange(action: Actions, geojson: FlattenOptionalGeometry, osmElements: OsmApiElements, externalId: string): ChangeModel {
