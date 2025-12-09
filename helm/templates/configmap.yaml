@@ -35,4 +35,10 @@ data:
   {{- else }}
   APP_SHOULD_HANDLE_PRECISION: 'false'
   {{- end }}
+  {{- if .Values.env.app.maxTagKeyLength.enabled }}
+  APP_MAX_TAG_KEY_LENGTH: {{ .Values.env.app.maxTagKeyLength.value | quote }}
+  {{- end }}
+  {{- if .Values.env.app.maxTagValueLength.enabled }}
+  APP_MAX_TAG_VALUE_LENGTH: {{ .Values.env.app.maxTagValueLength.value | quote }}
+  {{- end }}
 {{- end }}
