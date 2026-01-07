@@ -1,9 +1,10 @@
 import { Actions } from '@map-colonies/osm-change-generator';
 import jsLogger from '@map-colonies/js-logger';
 import { configMock } from '@tests/common/helpers';
+import { FeatureType } from '@src/change/models/geojsonTypes';
 import { ChangeManager } from '../../../../src/change/models/changeManager';
 import { TestDataBuilder } from '../../../common/testDataBuilder';
-import { allExtendedFeatureTypesWith3D, ExtendedFeatureType, getAllFeatureCasesByAction } from '../../../common/constants';
+import { allExtendedFeatureTypesWith3D, allFeatureTypes, ExtendedFeatureType, getAllFeatureCasesByAction } from '../../../common/constants';
 import { ParseOsmElementsError } from '../../../../src/change/models/errors';
 
 let changeManager: ChangeManager;
@@ -12,7 +13,10 @@ let testDataBuilder: TestDataBuilder;
 
 describe('ChangeManager', () => {
   beforeAll(function () {
-    changeManager = new ChangeManager(jsLogger({ enabled: false }), configMock({ shouldHandleLOD2: false }));
+    changeManager = new ChangeManager(
+      jsLogger({ enabled: false }),
+      configMock({ shouldHandleLOD2: false, maxTagKeyLength: 5, maxTagValueLength: 5 })
+    );
     changeManagerWithLOD2 = new ChangeManager(jsLogger({ enabled: false }), configMock({ shouldHandleLOD2: true }));
 
     testDataBuilder = new TestDataBuilder();
@@ -44,6 +48,31 @@ describe('ChangeManager', () => {
         expect(result).toHaveProperty('tempOsmId', -1);
         expect(result).toHaveProperty('action', request.action);
         expect(result).toHaveProperty('externalId', externalId);
+      }
+    );
+
+    it.each(allFeatureTypes)(
+      'should return a create changeModel with tempOsmId for create action and %s feature while filtering long tags',
+      (type: FeatureType) => {
+        const action = Actions.CREATE;
+        const { request, expectedResult: expectedChangeResult } = testDataBuilder.setAction(action).setGeojson(type).setIs3D(false).getTestData();
+        const { geojson, osmElements, externalId } = request;
+
+        // add some tags, 1 is valid, 2 has too long value, 3 has too long key
+        geojson.properties = { ...geojson.properties, key1: 'val1', key2: 'longVal2', longKey3: 'val3' };
+
+        const result = changeManager.generateChange(request.action, geojson, osmElements, externalId);
+
+        // osm change result
+        expect(result.change).toMatchObject(expectedChangeResult);
+
+        // full generated change result
+        expect(result).toHaveProperty('tempOsmId', -1);
+        expect(result).toHaveProperty('action', request.action);
+        expect(result).toHaveProperty('externalId', externalId);
+        expect(result.change.create![0]?.tags).toHaveProperty('key1', 'val1');
+        expect(result.change.create![0]?.tags).not.toHaveProperty('key2');
+        expect(result.change.create![0]?.tags).not.toHaveProperty('longKey3');
       }
     );
 

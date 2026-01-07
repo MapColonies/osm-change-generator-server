@@ -31,7 +31,9 @@
     "shouldHandlePrecision": {
       "__name": "APP_SHOULD_HANDLE_PRECISION",
       "__format": "boolean"
-    }
+    },
+    "maxTagKeyLength": "APP_MAX_TAG_KEY_LENGTH",
+    "maxTagValueLength": "APP_MAX_TAG_VALUE_LENGTH"
   },
   "server": {
     "port": "SERVER_PORT",

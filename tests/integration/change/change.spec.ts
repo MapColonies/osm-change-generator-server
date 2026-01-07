@@ -25,7 +25,7 @@ describe('changeWithout3D', function () {
       override: [
         {
           token: SERVICES.CONFIG,
-          provider: { useValue: configMock({ shouldHandleLOD2: false }) },
+          provider: { useValue: configMock({ shouldHandleLOD2: false, maxTagKeyLength: 5, maxTagValueLength: 5 }) },
         },
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         {
@@ -69,6 +69,28 @@ describe('changeWithout3D', function () {
           expect(response.body).toHaveProperty('externalId', request.externalId);
           expect(response.body).toHaveProperty('tempOsmId');
           expect((response.body as ChangeModel).change).toMatchObject(expectedResult);
+        }
+      );
+
+      it.each(allFeatureTypes)(
+        'should return 201 status code and the change generated that was invoked by create action and %s feature while filtering tags',
+        async (feature: ExtendedFeatureType) => {
+          const action = Actions.CREATE;
+          const { request, expectedResult } = testDataBuilder.setAction(action).setGeojson(feature).setIs3D(false).getTestData();
+
+          // add some tags, 1 is valid, 2 has too long value, 3 has too long key
+          request.geojson.properties = { ...request.geojson.properties, key1: 'val1', key2: 'longVal2', longKey3: 'val3' };
+          const response = await requestSender.postChange(request);
+
+          expect(response.status).toBe(httpStatusCodes.CREATED);
+          const result = response.body as ChangeModel;
+          expect(result).toHaveProperty('action', action);
+          expect(result).toHaveProperty('externalId', request.externalId);
+          expect(result).toHaveProperty('tempOsmId');
+          expect(result.change.create![0]?.tags).toHaveProperty('key1', 'val1');
+          expect(result.change.create![0]?.tags).not.toHaveProperty('key2');
+          expect(result.change.create![0]?.tags).not.toHaveProperty('longKey3');
+          expect(result.change).toMatchObject(expectedResult);
         }
       );
 
