@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://github.com/MapColonies/osm-change-generator-server/compare/v1.6.1...v1.7.0) (2026-01-07)
+
+
+### Features
+
+* **change:** support tag key-value length filtering ([#100](https://github.com/MapColonies/osm-change-generator-server/issues/100)) ([0e2cd60](https://github.com/MapColonies/osm-change-generator-server/commit/0e2cd605ec3697a9faed2d0da09c05785809b78d))
+
 ## [1.6.1](https://github.com/MapColonies/osm-change-generator-server/compare/v1.6.0...v1.6.1) (2025-08-14)
 
 
