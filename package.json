@@ -33,7 +33,7 @@
     "@map-colonies/config": "^2.0.0",
     "@map-colonies/error-express-handler": "^3.0.0",
     "@map-colonies/express-access-log-middleware": "^3.0.1",
-    "@map-colonies/js-logger": "^2.0.0",
+    "@map-colonies/js-logger": "^4.0.0",
     "@map-colonies/node-osm-elements": "^2.1.2",
     "@map-colonies/openapi-express-viewer": "^4.0.0",
     "@map-colonies/osm-change-generator": "^2.1.0",
